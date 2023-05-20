@@ -1,4 +1,4 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.model;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -11,7 +11,6 @@ import javax.validation.constraints.Email;
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class User {
-
     private Long id;
     private String name;
     @Email
