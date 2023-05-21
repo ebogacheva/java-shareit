@@ -22,9 +22,9 @@ public class UserMapper {
         }
     }
 
-    public static User toUser(UserDto userDto, Long id) {
+    public static User toUser(UserDto userDto, Long userId) {
         return User.builder()
-                .id(id)
+                .id(userId)
                 .name(userDto.getName())
                 .email(userDto.getEmail())
                 .build();

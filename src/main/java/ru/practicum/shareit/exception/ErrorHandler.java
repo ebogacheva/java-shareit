@@ -27,4 +27,11 @@ public class ErrorHandler {
     public Map<String, String>handleNotUniqueEmail(final UserEmailNotUniqueException e) {
         return Map.of("Not unique email: ", e.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String>handleElementNotFound(final ShareItElementNotFoundException e) {
+        return Map.of("Not found error: ", e.getMessage());
+    }
+
 }

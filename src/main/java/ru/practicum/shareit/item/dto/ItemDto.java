@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -8,10 +9,9 @@ import lombok.Data;
  */
 @Data
 @AllArgsConstructor
+@JsonDeserialize(using = ItemDtoDeserializer.class)
 public class ItemDto {
     private String name;
     private String description;
-    private boolean available;
-    private Long owner;
-    private Long request;
+    private String available;
 }
