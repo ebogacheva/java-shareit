@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user;
 
+import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.UserEmailNotUniqueException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
@@ -8,6 +9,7 @@ import ru.practicum.shareit.user.model.UserMapper;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
+@Repository
 public class UserRepositoryImpl implements UserRepository{
 
     private static final AtomicLong ID_PROVIDER = new AtomicLong(0);
@@ -39,7 +41,7 @@ public class UserRepositoryImpl implements UserRepository{
     public Optional<User> update(UserDto userDto, Long userId) {
         User user = users.get(userId);
         if (Objects.nonNull(user) && Objects.nonNull(userDto)) {
-            if (Objects.nonNull(userDto.getEmail())) {
+            if (Objects.nonNull(userDto.getEmail()) && !userDto.getEmail().equals(user.getEmail())) {
                 checkUserEmailIsUnique(userDto.getEmail());
             }
             UserMapper.updateUserWithUserDto(user, userDto);

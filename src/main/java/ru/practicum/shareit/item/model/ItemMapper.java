@@ -17,13 +17,13 @@ public class ItemMapper {
 
     public static void updateItemWithItemDto(Item item, ItemDto itemDto) {
         if (Objects.nonNull(itemDto.getName())) {
-            item.setName(item.getName());
+            item.setName(itemDto.getName());
         }
         if (Objects.nonNull(itemDto.getDescription())) {
-            item.setDescription(item.getDescription());
+            item.setDescription(itemDto.getDescription());
         }
         if (Objects.nonNull(itemDto.getAvailable())) {
-            item.setAvailable(Boolean.getBoolean(itemDto.getAvailable()));
+            item.setAvailable(Boolean.parseBoolean(itemDto.getAvailable()));
         }
     }
 
@@ -32,7 +32,7 @@ public class ItemMapper {
                 .id(itemId)
                 .name(itemDto.getName())
                 .description(itemDto.getDescription())
-                .available(Boolean.getBoolean(itemDto.getAvailable()))
+                .available(Boolean.parseBoolean(itemDto.getAvailable()))
                 .owner(user)
                 .build();
     }

@@ -4,9 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.model.User;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -20,8 +19,8 @@ public class ItemController {
     private ItemService itemService;
 
     @PostMapping
-    public Item create(@RequestHeader("X-Later-User-Id") Long userId,
-                       @RequestBody ItemDto itemDto) {
+    public Item create(@RequestHeader("X-Sharer-User-Id") long userId,
+                       @Valid @RequestBody ItemDto itemDto) {
         return itemService.create(itemDto, userId);
     }
 
@@ -31,19 +30,20 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<Item> findAll() {
-        return itemService.findAll();
+    public List<Item> findAll(@RequestHeader("X-Sharer-User-Id") long userId) {
+        return itemService.findAll(userId);
     }
 
     @PatchMapping(value = "/{itemId}")
-    public Item update(@PathVariable Long itemId,
+    public Item update(@RequestHeader("X-Sharer-User-Id") long userId,
+                       @PathVariable Long itemId,
                        @RequestBody ItemDto itemDto) {
-        return itemService.update(itemDto, itemId);
+        return itemService.update(itemDto, userId, itemId);
     }
 
-    @DeleteMapping(value = "/{itemId}")
-    public void delete(@PathVariable Long itemId) {
-        itemService.delete(itemId);
-    }
+    @GetMapping(value = "/search")
+    public List<Item> search(@RequestParam(value = "text", defaultValue = "", required = false) String searchBy) {
+        return itemService.search(searchBy);
+    };
 
 }

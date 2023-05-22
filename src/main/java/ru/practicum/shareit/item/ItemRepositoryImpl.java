@@ -8,6 +8,7 @@ import ru.practicum.shareit.user.model.User;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 @Repository
 public class ItemRepositoryImpl implements ItemRepository {
@@ -24,8 +25,11 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public List<Item> findAll() {
-        return new ArrayList<>(items.values());
+    public List<Item> findAll(Long userId) {
+        return items.values()
+                .stream()
+                .filter(item -> item.getOwner().getId().equals(userId))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -41,13 +45,25 @@ public class ItemRepositoryImpl implements ItemRepository {
         Item item = items.get(itemId);
         if (Objects.nonNull(itemDto) && Objects.nonNull(item)) {
             ItemMapper.updateItemWithItemDto(item, itemDto);
-            items.put(itemId, item);
         }
         return getById(itemId);
     }
 
     @Override
-    public void delete(Long itemId) {
-        items.remove(itemId);
+    public List<Item> search(String searchBy) {
+        if (searchBy.isEmpty()) {
+            return List.of();
+        } else {
+            return items.values().stream()
+                    .filter(item -> {
+                        String searchInLowerCase = searchBy.toLowerCase();
+                        String nameInLowerCase = item.getName().toLowerCase();
+                        String descriptionInLowerCase = item.getDescription().toLowerCase();
+                        return nameInLowerCase.contains(searchInLowerCase) || descriptionInLowerCase.contains(searchInLowerCase);
+                    })
+                    .filter(Item::isAvailable)
+                    .collect(Collectors.toList());
+        }
     }
+
 }

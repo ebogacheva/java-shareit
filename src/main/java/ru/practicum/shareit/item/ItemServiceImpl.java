@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.AccessForbiddenException;
 import ru.practicum.shareit.exception.ShareItElementNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
@@ -9,6 +10,7 @@ import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -35,20 +37,24 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<Item> findAll() {
-        return itemRepositoryImpl.findAll();
+    public List<Item> findAll(Long userId) {
+        return itemRepositoryImpl.findAll(userId);
     }
 
     @Override
-    public Item update(ItemDto itemDto, Long itemId) {
+    public Item update(ItemDto itemDto, Long userId, Long itemId) {
+        Item itemInMemory = getById(itemId);
+        userServiceImpl.getById(userId);
+        if (!Objects.equals(itemInMemory.getOwner().getId(), userId)) {
+            throw new AccessForbiddenException("Only owner can change the item.");
+        }
         Optional<Item> itemOptional = itemRepositoryImpl.update(itemDto, itemId);
-        if (itemOptional.isPresent()) {
-            return itemOptional.get();
-        } throw new ShareItElementNotFoundException("Item not found.");
+        return itemOptional.orElseThrow(() -> new ShareItElementNotFoundException("Item not found."));
     }
 
     @Override
-    public void delete(Long itemId) {
-        itemRepositoryImpl.delete(itemId);
+    public List<Item> search(String searchBy) {
+        return itemRepositoryImpl.search(searchBy);
     }
+
 }

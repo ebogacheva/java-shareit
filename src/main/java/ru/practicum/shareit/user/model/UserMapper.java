@@ -1,6 +1,5 @@
 package ru.practicum.shareit.user.model;
 
-
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.Objects;
