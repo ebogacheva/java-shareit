@@ -24,19 +24,19 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public Map<String, String>handleNotUniqueEmail(final UserEmailNotUniqueException e) {
+    public Map<String, String> handleNotUniqueEmail(final UserEmailNotUniqueException e) {
         return Map.of("Not unique email: ", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String>handleElementNotFound(final ShareItElementNotFoundException e) {
+    public Map<String, String> handleElementNotFound(final ShareItElementNotFoundException e) {
         return Map.of("Not found error: ", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public Map<String, String>handleUserNotAuthorizedCorrectly(final AccessForbiddenException e) {
+    public Map<String, String> handleUserNotAuthorizedCorrectly(final AccessForbiddenException e) {
         return Map.of("Access error: ", e.getMessage());
     }
 

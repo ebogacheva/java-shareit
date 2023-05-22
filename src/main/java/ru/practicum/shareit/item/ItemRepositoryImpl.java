@@ -21,7 +21,8 @@ public class ItemRepositoryImpl implements ItemRepository {
         Item item = items.get(itemId);
         if (Objects.nonNull(item)) {
             return Optional.of(item);
-        } return Optional.empty();
+        }
+        return Optional.empty();
     }
 
     @Override

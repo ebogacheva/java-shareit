@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Repository
-public class UserRepositoryImpl implements UserRepository{
+public class UserRepositoryImpl implements UserRepository {
 
     private static final AtomicLong ID_PROVIDER = new AtomicLong(0);
     private final HashMap<Long, User> users = new HashMap<>();

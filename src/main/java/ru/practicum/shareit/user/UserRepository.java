@@ -15,5 +15,6 @@ public interface UserRepository {
     User create(UserDto userDto);
 
     Optional<User> update(UserDto userDto, Long userId);
+
     void delete(Long userId);
 }
