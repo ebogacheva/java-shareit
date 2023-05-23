@@ -1,6 +1,6 @@
 package ru.practicum.shareit.user;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ShareItElementNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -10,10 +10,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private UserRepository userRepositoryImpl;
+    private static final String EXCEPTION_NOT_FOUND_INFO = "User not found.";
+
+    private final UserRepository userRepositoryImpl;
 
     public User create(UserDto userDto) {
        return userRepositoryImpl.create(userDto);
@@ -21,9 +23,7 @@ public class UserServiceImpl implements UserService {
 
     public User getById(Long userId) {
         Optional<User> userOptional = userRepositoryImpl.getById(userId);
-        if (userOptional.isPresent()) {
-            return userOptional.get();
-        } else throw new ShareItElementNotFoundException("User not found.");
+        return userOptional.orElseThrow(() -> new ShareItElementNotFoundException(EXCEPTION_NOT_FOUND_INFO));
     }
 
     @Override
@@ -33,9 +33,7 @@ public class UserServiceImpl implements UserService {
 
     public User update(UserDto userDto, Long userId) {
         Optional<User> userOptional = userRepositoryImpl.update(userDto, userId);
-        if (userOptional.isPresent()) {
-            return userOptional.get();
-        } else throw new ShareItElementNotFoundException("User not found.");
+        return userOptional.orElseThrow(() -> new ShareItElementNotFoundException(EXCEPTION_NOT_FOUND_INFO));
     }
 
     @Override

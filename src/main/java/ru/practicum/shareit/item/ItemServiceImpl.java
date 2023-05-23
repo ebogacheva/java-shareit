@@ -1,6 +1,6 @@
 package ru.practicum.shareit.item;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.AccessForbiddenException;
 import ru.practicum.shareit.exception.ShareItElementNotFoundException;
@@ -14,13 +14,14 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
 
-    @Autowired
-    private ItemRepository itemRepositoryImpl;
+    private static final String EXCEPTION_NOT_FOUND_INFO = "Item not found.";
+    private static final String EXCEPTION_ACCESS_FORBIDDEN_INFO = "Only owner can change the item.";
 
-    @Autowired
-    private UserService userServiceImpl;
+    private final ItemRepository itemRepositoryImpl;
+    private final UserService userServiceImpl;
 
     @Override
     public Item create(ItemDto itemDto, Long userId) {
@@ -31,9 +32,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Item getById(Long itemId) {
         Optional<Item> itemOptional = itemRepositoryImpl.getById(itemId);
-        if (itemOptional.isPresent()) {
-            return itemOptional.get();
-        } else throw new ShareItElementNotFoundException("Item not found.");
+        return itemOptional.orElseThrow(() -> new ShareItElementNotFoundException(EXCEPTION_NOT_FOUND_INFO));
     }
 
     @Override
@@ -46,15 +45,14 @@ public class ItemServiceImpl implements ItemService {
         Item itemInMemory = getById(itemId);
         userServiceImpl.getById(userId);
         if (!Objects.equals(itemInMemory.getOwner().getId(), userId)) {
-            throw new AccessForbiddenException("Only owner can change the item.");
+            throw new AccessForbiddenException(EXCEPTION_ACCESS_FORBIDDEN_INFO);
         }
         Optional<Item> itemOptional = itemRepositoryImpl.update(itemDto, itemId);
-        return itemOptional.orElseThrow(() -> new ShareItElementNotFoundException("Item not found."));
+        return itemOptional.orElseThrow(() -> new ShareItElementNotFoundException(EXCEPTION_NOT_FOUND_INFO));
     }
 
     @Override
     public List<Item> search(String searchBy) {
         return itemRepositoryImpl.search(searchBy);
     }
-
 }

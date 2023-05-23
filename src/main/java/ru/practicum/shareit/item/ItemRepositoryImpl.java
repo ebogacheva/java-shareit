@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class ItemRepositoryImpl implements ItemRepository {
 
     private static final AtomicLong ID_PROVIDER = new AtomicLong(0);
-    private final HashMap<Long, Item> items = new HashMap<>();
+    private final Map<Long, Item> items = new HashMap<>();
 
     @Override
     public Optional<Item> getById(Long itemId) {
@@ -56,15 +56,17 @@ public class ItemRepositoryImpl implements ItemRepository {
             return List.of();
         } else {
             return items.values().stream()
-                    .filter(item -> {
-                        String searchInLowerCase = searchBy.toLowerCase();
-                        String nameInLowerCase = item.getName().toLowerCase();
-                        String descriptionInLowerCase = item.getDescription().toLowerCase();
-                        return nameInLowerCase.contains(searchInLowerCase) || descriptionInLowerCase.contains(searchInLowerCase);
-                    })
+                    .filter(item -> isContainingSearchByText(item, searchBy))
                     .filter(Item::isAvailable)
                     .collect(Collectors.toList());
         }
+    }
+
+    private boolean isContainingSearchByText(Item item, String searchBy) {
+        String searchInLowerCase = searchBy.toLowerCase();
+        String nameInLowerCase = item.getName().toLowerCase();
+        String descriptionInLowerCase = item.getDescription().toLowerCase();
+        return nameInLowerCase.contains(searchInLowerCase) || descriptionInLowerCase.contains(searchInLowerCase);
     }
 
 }
