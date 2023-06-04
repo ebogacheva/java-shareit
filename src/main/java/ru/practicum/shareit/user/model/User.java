@@ -10,12 +10,13 @@ import javax.validation.constraints.NotNull;
 /**
  * TODO Sprint add-controllers.
  */
-@Entity
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
+@Entity(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,6 +26,6 @@ public class User {
     private String name;
     @Email
     @NotNull
-    @NotBlank
+    @Column(name = "email")
     private String email;
 }
