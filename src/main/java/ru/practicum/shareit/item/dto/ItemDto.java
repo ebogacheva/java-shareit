@@ -14,6 +14,8 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @JsonDeserialize(using = ItemDtoDeserializer.class)
 public class ItemDto {
+
+    private Long id;
     @NotNull
     @NotBlank
     private String name;

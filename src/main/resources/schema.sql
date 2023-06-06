@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS items (
     description VARCHAR(512) NOT NULL,
     is_available BOOLEAN NOT NULL,
     owner_id BIGINT REFERENCES users (id) NOT NULL,
-    request_id BIGINT REFERENCES requests (id) NOT NULL,
+    request_id BIGINT REFERENCES requests (id),
     PRIMARY KEY (id)
 );
 

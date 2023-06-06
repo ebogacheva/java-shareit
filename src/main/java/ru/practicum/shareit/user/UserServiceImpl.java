@@ -45,9 +45,17 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(userId);
     }
 
+    @Override
+    public boolean existsById(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new ShareItElementNotFoundException(EXCEPTION_NOT_FOUND_INFO);
+        } return true;
+    }
+
     private User findById(Long userId) {
         Optional<User> userOptional = userRepository.findById(userId);
         return userOptional
                 .orElseThrow(() -> new ShareItElementNotFoundException(EXCEPTION_NOT_FOUND_INFO));
     }
+
 }
