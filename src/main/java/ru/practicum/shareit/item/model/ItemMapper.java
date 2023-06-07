@@ -14,7 +14,8 @@ public class ItemMapper {
                 item.getId(),
                 item.getName(),
                 item.getDescription(),
-                String.valueOf(item.isAvailable())
+                item.isAvailable(),
+                item.getOwner().getId()
         );
     }
 
@@ -26,17 +27,17 @@ public class ItemMapper {
             item.setDescription(itemDto.getDescription());
         }
         if (Objects.nonNull(itemDto.getAvailable())) {
-            item.setAvailable(Boolean.parseBoolean(itemDto.getAvailable()));
+            item.setAvailable(itemDto.getAvailable());
         }
     }
 
-    public static Item toItem(ItemDto itemDto, Long itemId, Long userId) {
+    public static Item toItem(ItemDto itemDto, User user) {
         return Item.builder()
-                .id(itemId)
+                .id(itemDto.getId())
                 .name(itemDto.getName())
                 .description(itemDto.getDescription())
-                .available(Boolean.parseBoolean(itemDto.getAvailable()))
-                .owner(userId)
+                .available(itemDto.getAvailable())
+                .owner(user)
                 .build();
     }
 

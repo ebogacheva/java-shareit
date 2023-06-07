@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
  */
 @Getter
 @Setter
-@Entity
+@Entity(name = "items")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
@@ -31,10 +31,10 @@ public class Item {
     @Column(name = "is_available")
     private boolean available;
     @NotNull
-    @ManyToOne
+    @ManyToOne(targetEntity = User.class)
     @JoinColumn(name = "owner_id")
-    private Long owner;
-    @ManyToOne
+    private User owner;
+    @ManyToOne(targetEntity = ItemRequest.class)
     @JoinColumn(name = "request_id")
-    private Long request;
+    private ItemRequest request;
 }
