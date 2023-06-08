@@ -19,7 +19,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
 
-    private static final String EXCEPTION_NOT_FOUND_INFO = "Item not found.";
+    private static final String EXCEPTION_USER_NOT_FOUND_INFO = "User not found.";
+    private static final String EXCEPTION_ITEM_NOT_FOUND_INFO = "Item not found.";
     private static final String EXCEPTION_ACCESS_FORBIDDEN_INFO = "Only owner can change the item.";
 
     private final ItemRepository itemRepository;
@@ -29,7 +30,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto create(ItemDto itemDto, Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ShareItElementNotFoundException(EXCEPTION_NOT_FOUND_INFO));
+                .orElseThrow(() -> new ShareItElementNotFoundException(EXCEPTION_USER_NOT_FOUND_INFO));
         Item itemFromDto = ItemMapper.toItem(itemDto, user);
         return ItemMapper.toItemDto(itemRepository.save(itemFromDto));
     }
@@ -66,6 +67,6 @@ public class ItemServiceImpl implements ItemService {
 
     private Item findById(Long itemId) {
         Optional<Item> itemOptional = itemRepository.findById(itemId);
-        return itemOptional.orElseThrow(() -> new ShareItElementNotFoundException(EXCEPTION_NOT_FOUND_INFO));
+        return itemOptional.orElseThrow(() -> new ShareItElementNotFoundException(EXCEPTION_ITEM_NOT_FOUND_INFO));
     }
 }

@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder(toBuilder = true)
 @Entity(name = "bookings")
 public class Booking {
     @Id
@@ -31,5 +32,5 @@ public class Booking {
     private User booker;
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private BookingStatus status;
+    private BookingStatus status = BookingStatus.WAITING;
 }
