@@ -31,27 +31,27 @@ public class BookingController {
         return bookingServiceImpl.create(bookingInputDto, userId);
     }
 
-    @PatchMapping(value = "/bookings/{bookingId}?approved={approved}")
+    @PatchMapping(value = "/{bookingId}")
     public BookingFullDto update(@RequestHeader("X-Sharer-User-Id") long userId,
                                  @Positive @PathVariable Long bookingId,
                                  @NotNull @RequestParam Boolean approved) {
         return bookingServiceImpl.setStatus(userId, bookingId, approved);
     }
 
-    @GetMapping(value = "/bookings/{bookingId}")
+    @GetMapping(value = "/{bookingId}")
     public BookingFullDto getById(@RequestHeader("X-Sharer-User-Id") long userId,
                                   @Positive @PathVariable Long bookingId) {
         return bookingServiceImpl.getById(userId, bookingId);
     }
 
-    @GetMapping(value = "/bookings?state={state}")
+    @GetMapping
     public List<BookingFullDto> findUserBookings(@RequestHeader("X-Sharer-User-Id") long userId,
                                                  @RequestParam Optional<BookingsState> state) {
         BookingsState requestedState = state.orElse(BookingsState.ALL);
         return bookingServiceImpl.findUserBookings(userId, requestedState);
     }
 
-    @GetMapping(value = "/bookings/owner?state={state}")
+    @GetMapping(value = "/owner?state={state}")
     public List<BookingFullDto> findUserItemsBookings(@RequestHeader("X-Sharer-User-Id") long userId,
                                                       @RequestParam(name = "state") Optional<BookingsState> state) {
         BookingsState requestedState = state.orElse(BookingsState.ALL);
