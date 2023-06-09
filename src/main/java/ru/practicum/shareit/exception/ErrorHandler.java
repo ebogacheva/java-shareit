@@ -40,4 +40,10 @@ public class ErrorHandler {
         return Map.of("Access error: ", e.getMessage());
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleItemIsNotAvailable(final ItemIsUnavailableException e) {
+        return Map.of("Item access error: ", e.getMessage());
+    }
+
 }

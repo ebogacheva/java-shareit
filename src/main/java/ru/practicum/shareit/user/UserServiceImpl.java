@@ -23,9 +23,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto create(UserDto userDto) {
         User userFromDto = UserMapper.toUser(userDto, null);
-        if (findUserByEmail(userDto.getEmail())) {
-            throw new UserEmailNotUniqueException(EXCEPTION_EMAIL_NOT_UNIQUE);
-        }
+//        if (findUserByEmail(userDto.getEmail())) {
+//            throw new UserEmailNotUniqueException(EXCEPTION_EMAIL_NOT_UNIQUE);
+//        }
         User created = userRepository.save(userFromDto);
         return UserMapper.toUserDto(created);
     }

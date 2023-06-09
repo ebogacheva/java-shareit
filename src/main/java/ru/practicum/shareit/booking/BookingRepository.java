@@ -13,19 +13,19 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     String ALL_BY_BOOKER =
             " select b from bookings b " +
             " inner join b.booker " +
-            " where booker.id = ?1 ";
+            " where b.booker.id = ?1 ";
 
     String ALL_BY_OWNER =
             " select b from bookings b " +
             " inner join b.item " +
-            " inner join item.owner " +
-            " where owner.id = ?1 ";
+            " inner join b.item.owner " +
+            " where b.item.owner.id = ?1 ";
 
     String ORDER_BY_DATE = " order by b.start desc";
 
-    String GET_CURRENT = " and b. start < ?2 and b.end > now ";
-    String GET_FUTURE = " and b. start > ?2 and b.end > ?2 ";
-    String GET_PAST = " b. start < ?2 and b.end < ?2 ";
+    String GET_CURRENT = " and b.start < ?2 and b.end > now ";
+    String GET_FUTURE = " and b.start > ?2 and b.end > ?2 ";
+    String GET_PAST = " and b.start < ?2 and b.end < ?2 ";
     String GET_BY_STATUS = " and b.status = ?2 ";
 
     @Query(ALL_BY_BOOKER + ORDER_BY_DATE)
