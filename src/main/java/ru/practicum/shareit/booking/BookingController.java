@@ -11,7 +11,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 
 /**
  * TODO Sprint add-bookings.
@@ -46,16 +46,18 @@ public class BookingController {
 
     @GetMapping
     public List<BookingFullDto> findUserBookings(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                 @RequestParam Optional<BookingsState> state) {
-        BookingsState requestedState = state.orElse(BookingsState.ALL);
-        return bookingServiceImpl.findUserBookings(userId, requestedState);
+                                                 @RequestParam(required = false) BookingsState state) {
+        return bookingServiceImpl.findUserBookings(userId, checkAndSetIfNull(state));
     }
 
     @GetMapping(value = "/owner?state={state}")
     public List<BookingFullDto> findUserItemsBookings(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                      @RequestParam(name = "state") Optional<BookingsState> state) {
-        BookingsState requestedState = state.orElse(BookingsState.ALL);
-        return bookingServiceImpl.findUserItemsBookings(userId, requestedState);
+                                                      @RequestParam(required = false)  BookingsState state) {
+        return bookingServiceImpl.findUserItemsBookings(userId, checkAndSetIfNull(state));
+    }
+
+    private BookingsState checkAndSetIfNull(BookingsState state) {
+        return Objects.isNull(state) ? BookingsState.ALL : state;
     }
 
 }
