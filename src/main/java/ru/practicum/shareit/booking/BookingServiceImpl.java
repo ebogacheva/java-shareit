@@ -78,7 +78,7 @@ public class BookingServiceImpl implements BookingService {
     public BookingFullDto setStatus(Long userId, Long bookingId, boolean status) {
         Booking booking = findById(bookingId);
         if (!userIsItemOwner(userId, bookingId)) {
-            throw new AccessForbiddenException(EXCEPTION_CHANGE_STATUS_ACCESS_FORBIDDEN_INFO);
+            throw new ShareItElementNotFoundException(EXCEPTION_ITEM_NOT_FOUND_INFO);
         };
         booking.setStatus(BookingStatus.getApprovedOrRejected(status));
         return BookingMapper.toBookingDto(bookingRepository.save(booking));
