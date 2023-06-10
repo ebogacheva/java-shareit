@@ -54,4 +54,10 @@ public class ErrorHandler {
         return new ErrorResponse("Unknown state: " + e.getMessage(), e.getMessage());
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleBookingIsAlreadyApproved(final BookingIsAlreadyApprovedException e) {
+        return new ErrorResponse("Request error: ", e.getMessage());
+    }
+
 }

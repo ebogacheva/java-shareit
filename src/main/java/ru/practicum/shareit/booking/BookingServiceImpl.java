@@ -8,6 +8,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingMapper;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.model.BookingsSearchCondition;
+import ru.practicum.shareit.exception.BookingIsAlreadyApprovedException;
 import ru.practicum.shareit.exception.ItemIsUnavailableException;
 import ru.practicum.shareit.exception.ShareItElementNotFoundException;
 import ru.practicum.shareit.item.ItemRepository;
@@ -78,6 +79,9 @@ public class BookingServiceImpl implements BookingService {
         if (!userIsItemOwner(userId, itemId)) {
             throw new ShareItElementNotFoundException(EXCEPTION_ITEM_NOT_FOUND_INFO);
         };
+        if (booking.getStatus().equals(BookingStatus.APPROVED)) {
+            throw new BookingIsAlreadyApprovedException(EXCEPTION_BOOKING_NOT_FOUND_INFO);
+        }
         booking.setStatus(BookingStatus.getApprovedOrRejected(status));
         return BookingMapper.toBookingDto(bookingRepository.save(booking));
     }
