@@ -7,7 +7,7 @@ import ru.practicum.shareit.booking.dto.BookingInputDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingMapper;
 import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.booking.model.BookingsState;
+import ru.practicum.shareit.booking.model.BookingsSearchCondition;
 import ru.practicum.shareit.exception.ItemIsUnavailableException;
 import ru.practicum.shareit.exception.ShareItElementNotFoundException;
 import ru.practicum.shareit.item.ItemRepository;
@@ -58,17 +58,17 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingFullDto> findUserBookings(Long userId, String stateName) {
-        BookingsState bookingsState = BookingsState.getByName(stateName);
+    public List<BookingFullDto> findUserBookings(Long userId, String searchConditionName) {
+        BookingsSearchCondition bookingsSearchCondition = BookingsSearchCondition.getByName(searchConditionName);
         getUserIfExists(userId);
-        return BookingMapper.toBookingDtoList(bookingsState.getUserBookings(bookingRepository, userId));
+        return BookingMapper.toBookingDtoList(bookingsSearchCondition.getUserBookings(bookingRepository, userId));
     }
 
     @Override
-    public List<BookingFullDto> findUserItemsBookings(Long userId, String state) {
-        BookingsState bookingsState = BookingsState.getByName(state);
+    public List<BookingFullDto> findUserItemsBookings(Long userId, String searchConditionName) {
+        BookingsSearchCondition bookingsSearchCondition = BookingsSearchCondition.getByName(searchConditionName);
         getUserIfExists(userId);
-        return BookingMapper.toBookingDtoList(bookingsState.getUserItemsBookings(bookingRepository, userId));
+        return BookingMapper.toBookingDtoList(bookingsSearchCondition.getUserItemsBookings(bookingRepository, userId));
     }
 
     @Override

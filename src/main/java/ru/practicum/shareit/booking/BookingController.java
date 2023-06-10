@@ -5,13 +5,11 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingFullDto;
 import ru.practicum.shareit.booking.dto.BookingInputDto;
-import ru.practicum.shareit.booking.model.BookingsState;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * TODO Sprint add-bookings.
@@ -46,14 +44,14 @@ public class BookingController {
 
     @GetMapping
     public List<BookingFullDto> findUserBookings(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                 @RequestParam(required = false) String state) {
-        return bookingServiceImpl.findUserBookings(userId, state);
+                                                 @RequestParam(name = "state", required = false) String searchCondition) {
+        return bookingServiceImpl.findUserBookings(userId, searchCondition);
     }
 
     @GetMapping(value = "/owner")
     public List<BookingFullDto> findUserItemsBookings(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                      @RequestParam(required = false)  String state) {
-        return bookingServiceImpl.findUserItemsBookings(userId, state);
+                                                      @RequestParam(name = "state", required = false)  String searchCondition) {
+        return bookingServiceImpl.findUserItemsBookings(userId, searchCondition);
     }
 
 }

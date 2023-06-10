@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public enum BookingsState {
+public enum BookingsSearchCondition {
     ALL {
         @Override
         public List<Booking> getUserBookings(BookingRepository repository, Long userId) {
@@ -80,10 +80,11 @@ public enum BookingsState {
     public abstract List<Booking> getUserBookings(BookingRepository repository, Long userId);
     public abstract List<Booking> getUserItemsBookings(BookingRepository repository, Long userId);
 
-    public static BookingsState getByName(String state) {
-        final String stateIncludingAllCase = Objects.isNull(state) || Strings.isEmpty(state) ? "ALL" : state;
-        Arrays.stream(values()).filter(it -> it.name().equalsIgnoreCase(stateIncludingAllCase)).findAny()
-                .orElseThrow(() -> new UnsupportedStatusException(state));
-        return BookingsState.valueOf(stateIncludingAllCase);
+    public static BookingsSearchCondition getByName(String searchCondition) {
+        final String conditionIncludingAllCase =
+                Objects.isNull(searchCondition) || Strings.isEmpty(searchCondition) ? "ALL" : searchCondition;
+        Arrays.stream(values()).filter(i -> i.name().equalsIgnoreCase(conditionIncludingAllCase)).findAny()
+                .orElseThrow(() -> new UnsupportedStatusException(searchCondition));
+        return BookingsSearchCondition.valueOf(conditionIncludingAllCase);
     }
 }
