@@ -59,13 +59,19 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingFullDto> findUserBookings(Long userId, BookingsState state) {
-        return BookingMapper.toBookingDtoList(state.getUserBookings(bookingRepository, userId));
+    public List<BookingFullDto> findUserBookings(Long userId, String stateName) {
+        BookingsState bookingsState = BookingsState.getByName(stateName);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ShareItElementNotFoundException(EXCEPTION_USER_NOT_FOUND_INFO));
+        return BookingMapper.toBookingDtoList(bookingsState.getUserBookings(bookingRepository, userId));
     }
 
     @Override
-    public List<BookingFullDto> findUserItemsBookings(Long userId, BookingsState state) {
-        return BookingMapper.toBookingDtoList(state.getUserItemsBookings(bookingRepository, userId));
+    public List<BookingFullDto> findUserItemsBookings(Long userId, String state) {
+        BookingsState bookingsState = BookingsState.getByName(state);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ShareItElementNotFoundException(EXCEPTION_USER_NOT_FOUND_INFO));
+        return BookingMapper.toBookingDtoList(bookingsState.getUserItemsBookings(bookingRepository, userId));
     }
 
     @Override
@@ -92,5 +98,4 @@ public class BookingServiceImpl implements BookingService {
         Long authorId = findById(bookingId).getBooker().getId();
         return Objects.equals(authorId, userId);
     }
-
 }

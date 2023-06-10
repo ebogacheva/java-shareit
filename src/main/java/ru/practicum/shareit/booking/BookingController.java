@@ -46,18 +46,14 @@ public class BookingController {
 
     @GetMapping
     public List<BookingFullDto> findUserBookings(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                 @RequestParam(required = false) BookingsState state) {
-        return bookingServiceImpl.findUserBookings(userId, checkAndSetIfNull(state));
+                                                 @RequestParam(required = false) String state) {
+        return bookingServiceImpl.findUserBookings(userId, state);
     }
 
-    @GetMapping(value = "/owner?state={state}")
+    @GetMapping(value = "/owner")
     public List<BookingFullDto> findUserItemsBookings(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                      @RequestParam(required = false)  BookingsState state) {
-        return bookingServiceImpl.findUserItemsBookings(userId, checkAndSetIfNull(state));
-    }
-
-    private BookingsState checkAndSetIfNull(BookingsState state) {
-        return Objects.isNull(state) ? BookingsState.ALL : state;
+                                                      @RequestParam(required = false)  String state) {
+        return bookingServiceImpl.findUserItemsBookings(userId, state);
     }
 
 }

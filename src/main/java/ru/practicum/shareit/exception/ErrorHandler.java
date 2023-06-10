@@ -1,5 +1,6 @@
 package ru.practicum.shareit.exception;
 
+import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -19,6 +20,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleValidation(final MethodArgumentNotValidException e) {
+        MethodParameter parameter = e.getParameter();
         return Map.of("Validation error: ", e.getMessage());
     }
 
@@ -44,6 +46,12 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleItemIsNotAvailable(final ItemIsUnavailableException e) {
         return Map.of("Item access error: ", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleUnsupportedStatus(final UnsupportedStatusException e) {
+        return new ErrorResponse("Unknown state: " + e.getMessage(), e.getMessage());
     }
 
 }

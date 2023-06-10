@@ -1,9 +1,13 @@
 package ru.practicum.shareit.booking.model;
 
+import org.apache.logging.log4j.util.Strings;
 import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.exception.UnsupportedStatusException;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public enum BookingsState {
     ALL {
@@ -75,4 +79,11 @@ public enum BookingsState {
 
     public abstract List<Booking> getUserBookings(BookingRepository repository, Long userId);
     public abstract List<Booking> getUserItemsBookings(BookingRepository repository, Long userId);
+
+    public static BookingsState getByName(String state) {
+        final String stateIncludingAllCase = Objects.isNull(state) || Strings.isEmpty(state) ? "ALL" : state;
+        Arrays.stream(values()).filter(it -> it.name().equalsIgnoreCase(stateIncludingAllCase)).findAny()
+                .orElseThrow(() -> new UnsupportedStatusException(state));
+        return BookingsState.valueOf(stateIncludingAllCase);
+    }
 }
