@@ -52,7 +52,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingFullDto getById(Long userId, Long bookingId) {
         if (!userIsItemOwner(userId, bookingId) && !userIsBookingAuthor(userId, bookingId)) {
-            throw new AccessForbiddenException(EXCEPTION_BOOKING_ACCESS_FORBIDDEN_INFO);
+            throw new ShareItElementNotFoundException(EXCEPTION_ITEM_NOT_FOUND_INFO);
         }
         Booking booking = findById(bookingId);
         return BookingMapper.toBookingDto(booking);
