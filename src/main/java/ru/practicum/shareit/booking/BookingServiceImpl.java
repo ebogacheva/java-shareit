@@ -8,7 +8,6 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingMapper;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.model.BookingsState;
-import ru.practicum.shareit.exception.AccessForbiddenException;
 import ru.practicum.shareit.exception.ItemIsUnavailableException;
 import ru.practicum.shareit.exception.ShareItElementNotFoundException;
 import ru.practicum.shareit.item.ItemRepository;
@@ -27,8 +26,6 @@ public class BookingServiceImpl implements BookingService {
     private static final String EXCEPTION_USER_NOT_FOUND_INFO = "User not found.";
     private static final String EXCEPTION_ITEM_NOT_FOUND_INFO = "Item not found.";
     private static final String EXCEPTION_BOOKING_NOT_FOUND_INFO = "Booking not found.";
-    private static final String EXCEPTION_CHANGE_STATUS_ACCESS_FORBIDDEN_INFO = "Only owner can approve or reject the booking.";
-    private static final String EXCEPTION_BOOKING_ACCESS_FORBIDDEN_INFO = "Booking can be accessed by its owner or an author only.";
     private static final String EXCEPTION_ITEM_UNAVAILABLE = "Item is unavailable and can't be booked.";
 
     BookingRepository bookingRepository;
@@ -37,12 +34,13 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingFullDto create(BookingInputDto bookingInputDto, Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ShareItElementNotFoundException(EXCEPTION_USER_NOT_FOUND_INFO));
-        Item item = itemRepository.findById(bookingInputDto.getItemId())
-                .orElseThrow(() -> new ShareItElementNotFoundException(EXCEPTION_ITEM_NOT_FOUND_INFO));
+        User user = getUserIfExists(userId);
+        Item item = getItemIfExists(bookingInputDto.getItemId());
         if (!item.isAvailable()) {
             throw new ItemIsUnavailableException(EXCEPTION_ITEM_UNAVAILABLE);
+        }
+        if (userIsItemOwner(userId, bookingInputDto.getItemId())) {
+            throw new ShareItElementNotFoundException(EXCEPTION_ITEM_NOT_FOUND_INFO);
         }
         bookingInputDto.setStatus(BookingStatus.WAITING);
         Booking bookingFromDto = BookingMapper.toBooking(bookingInputDto, item, user);
@@ -51,33 +49,33 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingFullDto getById(Long userId, Long bookingId) {
-        if (!userIsItemOwner(userId, bookingId) && !userIsBookingAuthor(userId, bookingId)) {
-            throw new ShareItElementNotFoundException(EXCEPTION_ITEM_NOT_FOUND_INFO);
-        }
         Booking booking = findById(bookingId);
+        Long itemId = booking.getItem().getId();
+        if (!userIsItemOwner(userId, itemId) && !userIsBookingAuthor(userId, bookingId)) {
+            throw new ShareItElementNotFoundException(EXCEPTION_BOOKING_NOT_FOUND_INFO);
+        }
         return BookingMapper.toBookingDto(booking);
     }
 
     @Override
     public List<BookingFullDto> findUserBookings(Long userId, String stateName) {
         BookingsState bookingsState = BookingsState.getByName(stateName);
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ShareItElementNotFoundException(EXCEPTION_USER_NOT_FOUND_INFO));
+        getUserIfExists(userId);
         return BookingMapper.toBookingDtoList(bookingsState.getUserBookings(bookingRepository, userId));
     }
 
     @Override
     public List<BookingFullDto> findUserItemsBookings(Long userId, String state) {
         BookingsState bookingsState = BookingsState.getByName(state);
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ShareItElementNotFoundException(EXCEPTION_USER_NOT_FOUND_INFO));
+        getUserIfExists(userId);
         return BookingMapper.toBookingDtoList(bookingsState.getUserItemsBookings(bookingRepository, userId));
     }
 
     @Override
     public BookingFullDto setStatus(Long userId, Long bookingId, boolean status) {
         Booking booking = findById(bookingId);
-        if (!userIsItemOwner(userId, bookingId)) {
+        Long itemId = booking.getItem().getId();
+        if (!userIsItemOwner(userId, itemId)) {
             throw new ShareItElementNotFoundException(EXCEPTION_ITEM_NOT_FOUND_INFO);
         };
         booking.setStatus(BookingStatus.getApprovedOrRejected(status));
@@ -89,8 +87,18 @@ public class BookingServiceImpl implements BookingService {
         return optionalBooking.orElseThrow(() -> new ShareItElementNotFoundException(EXCEPTION_BOOKING_NOT_FOUND_INFO));
     }
 
-    private boolean userIsItemOwner(Long userId, Long bookingId) {
-        Long ownerId = findById(bookingId).getItem().getOwner().getId();
+    private Item getItemIfExists(Long itemId) {
+        return itemRepository.findById(itemId)
+                .orElseThrow(() -> new ShareItElementNotFoundException(EXCEPTION_ITEM_NOT_FOUND_INFO));
+    }
+
+    private User getUserIfExists(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ShareItElementNotFoundException(EXCEPTION_USER_NOT_FOUND_INFO));
+    }
+
+    private boolean userIsItemOwner(Long userId, Long itemId) {
+        Long ownerId = getItemIfExists(itemId).getOwner().getId();
         return Objects.equals(ownerId, userId);
     }
 
