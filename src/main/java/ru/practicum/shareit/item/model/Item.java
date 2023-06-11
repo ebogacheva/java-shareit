@@ -5,6 +5,7 @@ import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -22,9 +23,11 @@ public class Item {
     @Column(name = "id")
     private Long id;
     @NotNull
+    @NotBlank
     @Column(name = "name")
     private String name;
     @NotNull
+    @NotBlank
     @Column(name = "description")
     private String description;
     @NotNull

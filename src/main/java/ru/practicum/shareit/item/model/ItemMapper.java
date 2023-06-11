@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.model;
 
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
@@ -17,6 +18,15 @@ public class ItemMapper {
                 item.isAvailable(),
                 item.getOwner().getId()
         );
+    }
+
+    public static ItemResponseDto toItemResponseDto(Item item) {
+        return ItemResponseDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .available(item.isAvailable())
+                .build();
     }
 
     public static void updateItemWithItemDto(Item item, ItemDto itemDto) {

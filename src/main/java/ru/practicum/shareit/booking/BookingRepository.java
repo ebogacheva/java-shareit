@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.booking.model.Booking;
@@ -12,18 +13,18 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     String ALL_BY_BOOKER =
             " select b from bookings b " +
-            " inner join b.booker " +
-            " where b.booker.id = ?1 ";
+                    " inner join b.booker " +
+                    " where b.booker.id = ?1 ";
 
     String ALL_BY_OWNER =
             " select b from bookings b " +
-            " inner join b.item " +
-            " inner join b.item.owner " +
-            " where b.item.owner.id = ?1 ";
+                    " inner join b.item " +
+                    " inner join b.item.owner " +
+                    " where b.item.owner.id = ?1 ";
 
     String ORDER_BY_DATE = " order by b.start desc";
 
-    String GET_CURRENT = " and b.start < ?2 and b.end > now ";
+    String GET_CURRENT = " and b.start < ?2 and b.end > ?2 ";
     String GET_FUTURE = " and b.start > ?2 and b.end > ?2 ";
     String GET_PAST = " and b.start < ?2 and b.end < ?2 ";
     String GET_BY_STATUS = " and b.status = ?2 ";
@@ -57,4 +58,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query(ALL_BY_OWNER + GET_BY_STATUS + ORDER_BY_DATE)
     List<Booking> findUserItemsBookingsByStatus(Long userId, BookingStatus status);
+
+    Booking findFirst1BookingByItemIdAndEndBefore(Long itemId, LocalDateTime now, Sort sort);
+
+    Booking findFirst1BookingByItemIdAndStartAfter(Long itemId, LocalDateTime now, Sort sort);
 }

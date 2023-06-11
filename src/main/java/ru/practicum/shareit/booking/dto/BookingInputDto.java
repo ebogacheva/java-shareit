@@ -10,7 +10,7 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 @NoArgsConstructor
 @SuperBuilder(toBuilder = true)
 @EqualsAndHashCode(callSuper = true)
-public class BookingInputDto extends BookingDto{
+public class BookingInputDto extends BookingBaseDto {
     private Long itemId;
     private BookingStatus status;
 }

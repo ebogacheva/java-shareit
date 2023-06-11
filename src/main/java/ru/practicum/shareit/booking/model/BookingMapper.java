@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking.model;
 
+import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.dto.BookingFullDto;
+import ru.practicum.shareit.booking.dto.BookingInItemDto;
 import ru.practicum.shareit.booking.dto.BookingInputDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
@@ -9,7 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class BookingMapper {
-    public static BookingFullDto toBookingDto(Booking booking) {
+    public static BookingFullDto toBookingFullDto(Booking booking) {
         return BookingFullDto.builder()
                 .id(booking.getId())
                 .start(booking.getStart())
@@ -17,6 +19,15 @@ public class BookingMapper {
                 .booker(booking.getBooker())
                 .item(booking.getItem())
                 .status(booking.getStatus()).build();
+    }
+
+    public static BookingInItemDto toBookingInItemDto(Booking booking) {
+        return BookingInItemDto.builder()
+                .id(booking.getId())
+                .start(booking.getStart())
+                .end(booking.getEnd())
+                .bookerId(booking.getBooker().getId())
+                .build();
     }
 
     public static Booking toBooking(BookingFullDto bookingDto, Item item, User booker) {
@@ -42,6 +53,6 @@ public class BookingMapper {
     }
 
     public static List<BookingFullDto> toBookingDtoList(List<Booking> bookings) {
-        return bookings.stream().map(BookingMapper::toBookingDto).collect(Collectors.toList());
+        return bookings.stream().map(BookingMapper::toBookingFullDto).collect(Collectors.toList());
     }
 }

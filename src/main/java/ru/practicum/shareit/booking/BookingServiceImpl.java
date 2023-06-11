@@ -45,7 +45,7 @@ public class BookingServiceImpl implements BookingService {
         }
         bookingInputDto.setStatus(BookingStatus.WAITING);
         Booking bookingFromDto = BookingMapper.toBooking(bookingInputDto, item, user);
-        return BookingMapper.toBookingDto(bookingRepository.save(bookingFromDto));
+        return BookingMapper.toBookingFullDto(bookingRepository.save(bookingFromDto));
     }
 
     @Override
@@ -55,7 +55,7 @@ public class BookingServiceImpl implements BookingService {
         if (!userIsItemOwner(userId, itemId) && !userIsBookingAuthor(userId, bookingId)) {
             throw new ShareItElementNotFoundException(EXCEPTION_BOOKING_NOT_FOUND_INFO);
         }
-        return BookingMapper.toBookingDto(booking);
+        return BookingMapper.toBookingFullDto(booking);
     }
 
     @Override
@@ -83,7 +83,7 @@ public class BookingServiceImpl implements BookingService {
             throw new BookingIsAlreadyApprovedException(EXCEPTION_BOOKING_NOT_FOUND_INFO);
         }
         booking.setStatus(BookingStatus.getApprovedOrRejected(status));
-        return BookingMapper.toBookingDto(bookingRepository.save(booking));
+        return BookingMapper.toBookingFullDto(bookingRepository.save(booking));
     }
 
     private Booking findById(Long bookingId) {

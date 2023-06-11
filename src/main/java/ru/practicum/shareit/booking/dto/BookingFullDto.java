@@ -15,7 +15,7 @@ import ru.practicum.shareit.user.model.User;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class BookingFullDto extends BookingDto {
+public class BookingFullDto extends BookingBaseDto {
     private User booker;
     private Item item;
     private BookingStatus status;
