@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking.model;
 
-import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.dto.BookingFullDto;
 import ru.practicum.shareit.booking.dto.BookingInItemDto;
 import ru.practicum.shareit.booking.dto.BookingInputDto;

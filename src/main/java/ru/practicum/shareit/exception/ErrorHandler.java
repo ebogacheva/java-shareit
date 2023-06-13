@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.booking.BookingController;
-import ru.practicum.shareit.item.ItemController;
+import ru.practicum.shareit.item.controller.ItemController;
 import ru.practicum.shareit.request.ItemRequestController;
 import ru.practicum.shareit.user.UserController;
 
@@ -57,6 +57,12 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleBookingIsAlreadyApproved(final BookingIsAlreadyApprovedException e) {
+        return new ErrorResponse("Request error: ", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleNoUserBookingAvailableToComment(final NoUserBookingAvailableToComment e) {
         return new ErrorResponse("Request error: ", e.getMessage());
     }
 

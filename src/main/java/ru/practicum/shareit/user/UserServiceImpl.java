@@ -63,9 +63,4 @@ public class UserServiceImpl implements UserService {
         return userOptional
                 .orElseThrow(() -> new ShareItElementNotFoundException(EXCEPTION_NOT_FOUND_INFO));
     }
-
-    private boolean findUserByEmail(String email) {
-        return (userRepository.findUserByEmail(email) != null);
-    }
-
 }
