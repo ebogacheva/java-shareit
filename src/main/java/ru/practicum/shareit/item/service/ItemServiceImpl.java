@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingMapper;
@@ -44,6 +45,7 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
 
     @Override
+    @Transactional
     public ItemDto create(ItemDto itemDto, Long userId) {
         User user = getUserIfExists(userId);
         Item itemFromDto = ItemMapper.toItem(itemDto, user);
@@ -54,8 +56,8 @@ public class ItemServiceImpl implements ItemService {
     public ItemResponseDto getById(Long userId, Long itemId) {
         Item item = getItemIfExists(itemId);
         ItemResponseDto itemResponseDto = ItemMapper.toItemResponseDto(item);
-        boolean userIsItemOwner = item.getOwner().getId().equals(userId);
-        if (userIsItemOwner) {
+        boolean isUserItemOwner = item.getOwner().getId().equals(userId);
+        if (isUserItemOwner) {
             completeItemDtoWithBookingsInfo(itemResponseDto);
             completeItemDtoWithComments(itemResponseDto);
         } else {
@@ -75,6 +77,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public ItemDto update(ItemDto itemDto, Long userId, Long itemId) {
         Item item = getItemIfExists(itemId);
         getUserIfExists(userId);
@@ -94,6 +97,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public CommentResponseDto addComment(CommentPostRequestDto commentPostRequestDto, Long itemId, Long userId) {
         Item item = getItemIfExists(itemId);
         User user = getUserIfExists(userId);

@@ -1,9 +1,9 @@
 package ru.practicum.shareit.booking;
 
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingFullDto;
 import ru.practicum.shareit.booking.dto.BookingInputDto;
 import ru.practicum.shareit.booking.model.Booking;
@@ -36,6 +36,7 @@ public class BookingServiceImpl implements BookingService {
     private final Map<SearchCondition, Function<Long, List<Booking>>> conditions = new HashMap<>();
 
     @Override
+    @Transactional
     public BookingFullDto create(BookingInputDto bookingInputDto, Long userId) {
         User user = getUserIfExists(userId);
         Item item = getItemIfExists(bookingInputDto.getItemId());
@@ -70,13 +71,14 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public BookingFullDto setStatus(Long userId, Long bookingId, boolean status) {
         Booking booking = getBookingIfExists(bookingId);
         Long itemId = booking.getItem().getId();
         if (!userIsItemOwner(userId, itemId)) {
             throw new ShareItElementNotFoundException(EXCEPTION_ITEM_NOT_FOUND_INFO);
         }
-        if (booking.getStatus().equals(BookingStatus.APPROVED)) {
+        if (booking.getStatus() == BookingStatus.APPROVED) {
             throw new BookingIsAlreadyApprovedException(EXCEPTION_BOOKING_NOT_FOUND_INFO);
         }
         booking.setStatus(BookingStatus.getApprovedOrRejected(status));
@@ -87,7 +89,9 @@ public class BookingServiceImpl implements BookingService {
         final String conditionIncludingAllCase =
                 Objects.isNull(conditionName) || Strings.isEmpty(conditionName) ? "ALL" : conditionName;
         final String fullCondition = (conditionIncludingAllCase + requester).toUpperCase();
-        return Arrays.stream(SearchCondition.values()).filter(c -> c.name().equals(fullCondition)).findFirst()
+        return Arrays.stream(SearchCondition.values())
+                .filter(c -> c.name().equals(fullCondition))
+                .findFirst()
                 .orElseThrow(() -> new UnsupportedStatusException(conditionName));
     }
 
