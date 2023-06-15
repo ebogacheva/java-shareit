@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingFullDto;
@@ -17,10 +18,8 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Function;
 
 @Service
 @AllArgsConstructor
@@ -34,6 +33,7 @@ public class BookingServiceImpl implements BookingService {
     private BookingRepository bookingRepository;
     private UserRepository userRepository;
     private ItemRepository itemRepository;
+    private final Map<SearchCondition, Function<Long, List<Booking>>> conditions = new HashMap<>();
 
     @Override
     public BookingFullDto create(BookingInputDto bookingInputDto, Long userId) {
@@ -61,18 +61,11 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingFullDto> findUserBookings(Long userId, String conditionName) {
-        SearchCondition searchCondition = SearchCondition.getByName(conditionName);
+    public List<BookingFullDto> findBookings(Long userId, String conditionName, String requester) {
         getUserIfExists(userId);
-        List<Booking> bookings = searchCondition.getUserBookings(bookingRepository, userId);
-        return BookingMapper.toBookingDtoList(bookings);
-    }
-
-    @Override
-    public List<BookingFullDto> findUserItemsBookings(Long userId, String searchConditionName) {
-        SearchCondition searchCondition = SearchCondition.getByName(searchConditionName);
-        getUserIfExists(userId);
-        List<Booking> bookings = searchCondition.getUserItemsBookings(bookingRepository, userId);
+        composeConditionsMapIfEmpty();
+        Function<Long, List<Booking>> repositoryMethod = getRepositoryMethod(conditionName, requester);
+        List<Booking> bookings = repositoryMethod.apply(userId);
         return BookingMapper.toBookingDtoList(bookings);
     }
 
@@ -90,83 +83,48 @@ public class BookingServiceImpl implements BookingService {
         return BookingMapper.toBookingFullDto(bookingRepository.save(booking));
     }
 
+    private SearchCondition getFullSearchCondition(String conditionName, String requester) {
+        final String conditionIncludingAllCase =
+                Objects.isNull(conditionName) || Strings.isEmpty(conditionName) ? "ALL" : conditionName;
+        final String fullCondition = (conditionIncludingAllCase + requester).toUpperCase();
+        return Arrays.stream(SearchCondition.values()).filter(c -> c.name().equals(fullCondition)).findFirst()
+                .orElseThrow(() -> new UnsupportedStatusException(conditionName));
+    }
+
+    private Function<Long, List<Booking>> getRepositoryMethod(String conditionName, String requester) {
+        SearchCondition fullSearchCondition = getFullSearchCondition(conditionName, requester);
+        return conditions.get(fullSearchCondition);
+    }
+
     private enum SearchCondition {
-        ALL {
-            @Override
-            public List<Booking> getUserBookings(BookingRepository repository, Long userId) {
-                return repository.findAllUserBookings(userId);
-            }
+        ALL_FOR_BOOKER,
+        CURRENT_FOR_BOOKER,
+        PAST_FOR_BOOKER,
+        FUTURE_FOR_BOOKER,
+        WAITING_FOR_BOOKER,
+        REJECTED_FOR_BOOKER,
+        ALL_FOR_OWNER,
+        CURRENT_FOR_OWNER,
+        PAST_FOR_OWNER,
+        FUTURE_FOR_OWNER,
+        WAITING_FOR_OWNER,
+        REJECTED_FOR_OWNER;
+    }
 
-            @Override
-            public List<Booking> getUserItemsBookings(BookingRepository repository, Long userId) {
-                return repository.findAllUserItemsBookings(userId);
-            }
-        },
-        CURRENT {
-            @Override
-            public List<Booking> getUserBookings(BookingRepository repository, Long userId) {
-                return repository.findCurrentUserBookings(userId, LocalDateTime.now());
-            }
-
-            @Override
-            public List<Booking> getUserItemsBookings(BookingRepository repository, Long userId) {
-                return repository.findCurrentUserItemsBookings(userId, LocalDateTime.now());
-            }
-        },
-        PAST {
-            @Override
-            public List<Booking> getUserBookings(BookingRepository repository, Long userId) {
-                return repository.findPastUserBookings(userId, LocalDateTime.now());
-            }
-
-            @Override
-            public List<Booking> getUserItemsBookings(BookingRepository repository, Long userId) {
-                return repository.findPastUserItemsBookings(userId, LocalDateTime.now());
-            }
-        },
-        FUTURE {
-            @Override
-            public List<Booking> getUserBookings(BookingRepository repository, Long userId) {
-                return repository.findFutureUserBookings(userId, LocalDateTime.now());
-            }
-
-            @Override
-            public List<Booking> getUserItemsBookings(BookingRepository repository, Long userId) {
-                return repository.findFutureUserItemsBookings(userId, LocalDateTime.now());
-            }
-        },
-        WAITING {
-            @Override
-            public List<Booking> getUserBookings(BookingRepository repository, Long userId) {
-                return repository.findUserBookingsByStatus(userId, BookingStatus.WAITING);
-            }
-
-            @Override
-            public List<Booking> getUserItemsBookings(BookingRepository repository, Long userId) {
-                return repository.findUserItemsBookingsByStatus(userId, BookingStatus.WAITING);
-            }
-        },
-        REJECTED {
-            @Override
-            public List<Booking> getUserBookings(BookingRepository repository, Long userId) {
-                return repository.findUserBookingsByStatus(userId, BookingStatus.REJECTED);
-            }
-
-            @Override
-            public List<Booking> getUserItemsBookings(BookingRepository repository, Long userId) {
-                return repository.findUserItemsBookingsByStatus(userId, BookingStatus.REJECTED);
-            }
-        };
-
-        public abstract List<Booking> getUserBookings(BookingRepository repository, Long userId);
-
-        public abstract List<Booking> getUserItemsBookings(BookingRepository repository, Long userId);
-
-        public static SearchCondition getByName(String searchCondition) {
-            final String conditionIncludingAllCase =
-                    Objects.isNull(searchCondition) || Strings.isEmpty(searchCondition) ? "ALL" : searchCondition;
-            return Arrays.stream(values()).filter(i -> i.name().equalsIgnoreCase(conditionIncludingAllCase)).findFirst()
-                    .orElseThrow(() -> new UnsupportedStatusException(searchCondition));
+    private void composeConditionsMapIfEmpty() {
+        if (conditions.isEmpty()) {
+            conditions.put(SearchCondition.ALL_FOR_BOOKER, bookingRepository::findAllUserBookings);
+            conditions.put(SearchCondition.CURRENT_FOR_BOOKER, bookingRepository::findCurrentUserBookings);
+            conditions.put(SearchCondition.PAST_FOR_BOOKER, bookingRepository::findPastUserBookings);
+            conditions.put(SearchCondition.FUTURE_FOR_BOOKER, bookingRepository::findFutureUserBookings);
+            conditions.put(SearchCondition.WAITING_FOR_BOOKER, bookingRepository::findUserBookingsWaiting);
+            conditions.put(SearchCondition.REJECTED_FOR_BOOKER, bookingRepository::findUserBookingsRejected);
+            conditions.put(SearchCondition.ALL_FOR_OWNER, bookingRepository::findAllUserItemsBookings);
+            conditions.put(SearchCondition.CURRENT_FOR_OWNER, bookingRepository::findCurrentUserItemsBookings);
+            conditions.put(SearchCondition.PAST_FOR_OWNER, bookingRepository::findPastUserItemsBookings);
+            conditions.put(SearchCondition.FUTURE_FOR_OWNER, bookingRepository::findFutureUserItemsBookings);
+            conditions.put(SearchCondition.WAITING_FOR_OWNER, bookingRepository::findUserItemsBookingsWaiting);
+            conditions.put(SearchCondition.REJECTED_FOR_OWNER, bookingRepository::findUserItemsBookingsRejected);
         }
     }
 

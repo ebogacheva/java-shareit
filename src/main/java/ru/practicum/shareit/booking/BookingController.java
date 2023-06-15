@@ -21,6 +21,8 @@ import java.util.List;
 public class BookingController {
 
     private static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
+    private static final String BOOKER = "_FOR_BOOKER";
+    private static final String OWNER = "_FOR_OWNER";
     private final BookingService bookingServiceImpl;
 
     @PostMapping
@@ -30,28 +32,28 @@ public class BookingController {
     }
 
     @PatchMapping(value = "/{bookingId}")
-    public BookingFullDto update(@RequestHeader("X-Sharer-User-Id") long userId,
+    public BookingFullDto update(@RequestHeader(X_SHARER_USER_ID) long userId,
                                  @Positive @PathVariable Long bookingId,
                                  @NotNull @RequestParam Boolean approved) {
         return bookingServiceImpl.setStatus(userId, bookingId, approved);
     }
 
     @GetMapping(value = "/{bookingId}")
-    public BookingFullDto getById(@RequestHeader("X-Sharer-User-Id") long userId,
+    public BookingFullDto getById(@RequestHeader(X_SHARER_USER_ID) long userId,
                                   @Positive @PathVariable Long bookingId) {
         return bookingServiceImpl.getById(userId, bookingId);
     }
 
     @GetMapping
-    public List<BookingFullDto> findUserBookings(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                 @RequestParam(name = "state", required = false) String searchCondition) {
-        return bookingServiceImpl.findUserBookings(userId, searchCondition);
+    public List<BookingFullDto> findBookingsForBooker(@RequestHeader(X_SHARER_USER_ID) long userId,
+                                                      @RequestParam(name = "state", required = false) String searchCondition) {
+        return bookingServiceImpl.findBookings(userId, searchCondition, BOOKER);
     }
 
     @GetMapping(value = "/owner")
-    public List<BookingFullDto> findUserItemsBookings(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                      @RequestParam(name = "state", required = false)  String searchCondition) {
-        return bookingServiceImpl.findUserItemsBookings(userId, searchCondition);
+    public List<BookingFullDto> findBookingsForOwner(@RequestHeader(X_SHARER_USER_ID) long userId,
+                                                     @RequestParam(name = "state", required = false)  String searchCondition) {
+        return bookingServiceImpl.findBookings(userId, searchCondition, OWNER);
     }
 
 }

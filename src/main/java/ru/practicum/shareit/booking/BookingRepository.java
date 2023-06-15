@@ -25,40 +25,47 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     String ORDER_BY_DATE = " order by b.start desc";
 
-    String GET_CURRENT = " and b.start < ?2 and b.end > ?2 ";
-    String GET_FUTURE = " and b.start > ?2 and b.end > ?2 ";
-    String GET_PAST = " and b.start < ?2 and b.end < ?2 ";
-    String GET_BY_STATUS = " and b.status = ?2 ";
+    String GET_CURRENT = " and b.start < CURRENT_TIMESTAMP and b.end > CURRENT_TIMESTAMP ";
+    String GET_FUTURE = " and b.start > CURRENT_TIMESTAMP and b.end > CURRENT_TIMESTAMP ";
+    String GET_PAST = " and b.start < CURRENT_TIMESTAMP and b.end < CURRENT_TIMESTAMP ";
+    String GET_WAITING = " and b.status = ru.practicum.shareit.booking.model.BookingStatus.WAITING ";
+    String GET_REJECTED = " and b.status = ru.practicum.shareit.booking.model.BookingStatus.REJECTED ";
 
     @Query(ALL_BY_BOOKER + ORDER_BY_DATE)
     List<Booking> findAllUserBookings(Long userId);
 
     @Query(ALL_BY_BOOKER + GET_CURRENT + ORDER_BY_DATE)
-    List<Booking> findCurrentUserBookings(Long userId, LocalDateTime now);
+    List<Booking> findCurrentUserBookings(Long userId);
 
     @Query(ALL_BY_BOOKER + GET_FUTURE + ORDER_BY_DATE)
-    List<Booking> findFutureUserBookings(Long userId, LocalDateTime now);
+    List<Booking> findFutureUserBookings(Long userId);
 
     @Query(ALL_BY_BOOKER + GET_PAST + ORDER_BY_DATE)
-    List<Booking> findPastUserBookings(Long userId, LocalDateTime now);
+    List<Booking> findPastUserBookings(Long userId);
 
-    @Query(ALL_BY_BOOKER + GET_BY_STATUS + ORDER_BY_DATE)
-    List<Booking> findUserBookingsByStatus(Long userId, BookingStatus status);
+    @Query(ALL_BY_BOOKER + GET_WAITING + ORDER_BY_DATE)
+    List<Booking> findUserBookingsWaiting(Long userId);
+
+    @Query(ALL_BY_BOOKER + GET_REJECTED + ORDER_BY_DATE)
+    List<Booking> findUserBookingsRejected(Long userId);
 
     @Query(ALL_BY_OWNER + ORDER_BY_DATE)
     List<Booking> findAllUserItemsBookings(Long userId);
 
     @Query(ALL_BY_OWNER + GET_CURRENT + ORDER_BY_DATE)
-    List<Booking> findCurrentUserItemsBookings(Long userId, LocalDateTime now);
+    List<Booking> findCurrentUserItemsBookings(Long userId);
 
     @Query(ALL_BY_OWNER + GET_FUTURE + ORDER_BY_DATE)
-    List<Booking> findFutureUserItemsBookings(Long userId, LocalDateTime now);
+    List<Booking> findFutureUserItemsBookings(Long userId);
 
     @Query(ALL_BY_OWNER + GET_PAST + ORDER_BY_DATE)
-    List<Booking> findPastUserItemsBookings(Long userId, LocalDateTime now);
+    List<Booking> findPastUserItemsBookings(Long userId);
 
-    @Query(ALL_BY_OWNER + GET_BY_STATUS + ORDER_BY_DATE)
-    List<Booking> findUserItemsBookingsByStatus(Long userId, BookingStatus status);
+    @Query(ALL_BY_OWNER + GET_WAITING + ORDER_BY_DATE)
+    List<Booking> findUserItemsBookingsWaiting(Long userId);
+
+    @Query(ALL_BY_OWNER + GET_REJECTED + ORDER_BY_DATE)
+    List<Booking> findUserItemsBookingsRejected(Long userId);
 
     Optional<Booking> findFirst1BookingByItemIdAndStatusAndStartBefore(Long itemId, BookingStatus status, LocalDateTime now, Sort sort);
 
