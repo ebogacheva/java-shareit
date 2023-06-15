@@ -21,6 +21,19 @@ import ru.practicum.shareit.user.model.User;
 import java.util.*;
 import java.util.function.Function;
 
+import static ru.practicum.shareit.booking.BookingServiceImpl.SearchCondition.ALL_FOR_BOOKER;
+import static ru.practicum.shareit.booking.BookingServiceImpl.SearchCondition.ALL_FOR_OWNER;
+import static ru.practicum.shareit.booking.BookingServiceImpl.SearchCondition.CURRENT_FOR_BOOKER;
+import static ru.practicum.shareit.booking.BookingServiceImpl.SearchCondition.CURRENT_FOR_OWNER;
+import static ru.practicum.shareit.booking.BookingServiceImpl.SearchCondition.PAST_FOR_BOOKER;
+import static ru.practicum.shareit.booking.BookingServiceImpl.SearchCondition.PAST_FOR_OWNER;
+import static ru.practicum.shareit.booking.BookingServiceImpl.SearchCondition.FUTURE_FOR_BOOKER;
+import static ru.practicum.shareit.booking.BookingServiceImpl.SearchCondition.FUTURE_FOR_OWNER;
+import static ru.practicum.shareit.booking.BookingServiceImpl.SearchCondition.REJECTED_FOR_BOOKER;
+import static ru.practicum.shareit.booking.BookingServiceImpl.SearchCondition.WAITING_FOR_OWNER;
+import static ru.practicum.shareit.booking.BookingServiceImpl.SearchCondition.REJECTED_FOR_OWNER;
+import static ru.practicum.shareit.booking.BookingServiceImpl.SearchCondition.WAITING_FOR_BOOKER;
+
 @Service
 @AllArgsConstructor
 public class BookingServiceImpl implements BookingService {
@@ -30,10 +43,10 @@ public class BookingServiceImpl implements BookingService {
     private static final String EXCEPTION_BOOKING_NOT_FOUND_INFO = "Booking not found.";
     private static final String EXCEPTION_ITEM_UNAVAILABLE = "Item is unavailable and can't be booked.";
 
-    private BookingRepository bookingRepository;
-    private UserRepository userRepository;
-    private ItemRepository itemRepository;
-    private final Map<SearchCondition, Function<Long, List<Booking>>> conditions = new HashMap<>();
+    private final BookingRepository bookingRepository;
+    private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
+    private Map<SearchCondition, Function<Long, List<Booking>>> conditions;
 
     @Override
     @Transactional
@@ -100,7 +113,7 @@ public class BookingServiceImpl implements BookingService {
         return conditions.get(fullSearchCondition);
     }
 
-    private enum SearchCondition {
+    public enum SearchCondition {
         ALL_FOR_BOOKER,
         CURRENT_FOR_BOOKER,
         PAST_FOR_BOOKER,
@@ -117,18 +130,20 @@ public class BookingServiceImpl implements BookingService {
 
     private void composeConditionsMapIfEmpty() {
         if (conditions.isEmpty()) {
-            conditions.put(SearchCondition.ALL_FOR_BOOKER, bookingRepository::findAllUserBookings);
-            conditions.put(SearchCondition.CURRENT_FOR_BOOKER, bookingRepository::findCurrentUserBookings);
-            conditions.put(SearchCondition.PAST_FOR_BOOKER, bookingRepository::findPastUserBookings);
-            conditions.put(SearchCondition.FUTURE_FOR_BOOKER, bookingRepository::findFutureUserBookings);
-            conditions.put(SearchCondition.WAITING_FOR_BOOKER, bookingRepository::findUserBookingsWaiting);
-            conditions.put(SearchCondition.REJECTED_FOR_BOOKER, bookingRepository::findUserBookingsRejected);
-            conditions.put(SearchCondition.ALL_FOR_OWNER, bookingRepository::findAllUserItemsBookings);
-            conditions.put(SearchCondition.CURRENT_FOR_OWNER, bookingRepository::findCurrentUserItemsBookings);
-            conditions.put(SearchCondition.PAST_FOR_OWNER, bookingRepository::findPastUserItemsBookings);
-            conditions.put(SearchCondition.FUTURE_FOR_OWNER, bookingRepository::findFutureUserItemsBookings);
-            conditions.put(SearchCondition.WAITING_FOR_OWNER, bookingRepository::findUserItemsBookingsWaiting);
-            conditions.put(SearchCondition.REJECTED_FOR_OWNER, bookingRepository::findUserItemsBookingsRejected);
+            conditions = Map.ofEntries(
+                    Map.entry(ALL_FOR_BOOKER, bookingRepository::findAllUserBookings),
+                    Map.entry(CURRENT_FOR_BOOKER, bookingRepository::findCurrentUserBookings),
+                    Map.entry(PAST_FOR_BOOKER, bookingRepository::findPastUserBookings),
+                    Map.entry(FUTURE_FOR_BOOKER, bookingRepository::findFutureUserBookings),
+                    Map.entry(WAITING_FOR_BOOKER, bookingRepository::findUserBookingsWaiting),
+                    Map.entry(REJECTED_FOR_BOOKER, bookingRepository::findUserBookingsRejected),
+                    Map.entry(ALL_FOR_OWNER, bookingRepository::findAllUserItemsBookings),
+                    Map.entry(CURRENT_FOR_OWNER, bookingRepository::findCurrentUserItemsBookings),
+                    Map.entry(PAST_FOR_OWNER, bookingRepository::findPastUserItemsBookings),
+                    Map.entry(FUTURE_FOR_OWNER, bookingRepository::findFutureUserItemsBookings),
+                    Map.entry(WAITING_FOR_OWNER, bookingRepository::findUserItemsBookingsWaiting),
+                    Map.entry(REJECTED_FOR_OWNER, bookingRepository::findUserItemsBookingsRejected)
+            );
         }
     }
 
