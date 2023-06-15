@@ -1,19 +1,20 @@
 package ru.practicum.shareit.item.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import ru.practicum.shareit.booking.dto.BookingInItemDto;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Getter
 @Setter
 @AllArgsConstructor
-public class ItemDto {
+@Builder(toBuilder = true)
+public class ItemResponseDto {
 
     private Long id;
     @NotNull
@@ -24,5 +25,7 @@ public class ItemDto {
     private String description;
     @NotNull
     private Boolean available;
-    private Long owner;
+    private BookingInItemDto lastBooking;
+    private BookingInItemDto nextBooking;
+    private List<CommentResponseDto> comments;
 }

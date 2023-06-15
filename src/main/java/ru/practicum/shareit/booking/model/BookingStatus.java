@@ -6,4 +6,12 @@ public enum BookingStatus {
     APPROVED,
     REJECTED,
     CANCELED;
+
+    public static BookingStatus getApprovedOrRejected(boolean approved) {
+        if (approved) {
+            return BookingStatus.APPROVED;
+        } else {
+            return BookingStatus.REJECTED;
+        }
+    }
 }
