@@ -24,8 +24,8 @@ public class ItemRequest {
     @Column(name = "description")
     private String description;
     @ManyToOne
-    @JoinColumn(name = "requestor_id")
-    private User requestor;
+    @JoinColumn(name = "requester_id")
+    private User requester;
     @Column(name = "created")
     @CreationTimestamp
     private LocalDateTime created;

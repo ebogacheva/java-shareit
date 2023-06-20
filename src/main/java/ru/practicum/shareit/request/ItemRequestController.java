@@ -4,10 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestFullDto;
+import ru.practicum.shareit.request.dto.RequestWithResponsesDto;
 import ru.practicum.shareit.request.service.ItemRequestService;
-import ru.practicum.shareit.request.service.ItemRequestServiceImpl;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * TODO Sprint add-item-requests.
@@ -25,6 +26,11 @@ public class ItemRequestController {
     public ItemRequestFullDto create(@RequestHeader(X_SHARER_USER_ID) long userId,
                                      @Valid @RequestBody ItemRequestDto itemRequestDto) {
         return itemRequestServiceImpl.create(itemRequestDto, userId);
+    }
+
+    @GetMapping
+    public List<RequestWithResponsesDto> findAll(@RequestHeader(X_SHARER_USER_ID) long userId) {
+        return itemRequestServiceImpl.findAll(userId);
     }
 
 }

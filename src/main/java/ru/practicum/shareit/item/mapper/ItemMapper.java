@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.mapper;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.model.ItemResponse;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
@@ -54,6 +55,18 @@ public class ItemMapper {
 
     public static List<ItemDto> toItemDtoList(List<Item> items) {
         return items.stream().map(ItemMapper::toItemDto).collect(Collectors.toList());
+    }
+
+    public static ItemResponse toItemResponse(Item item) {
+        return ItemResponse.builder()
+                .itemId(item.getId())
+                .itemName(item.getName())
+                .userId(item.getOwner().getId())
+                .build();
+    }
+
+    public static List<ItemResponse> toResponsesList(List<Item> items) {
+        return items.stream().map(ItemMapper::toItemResponse).collect(Collectors.toList());
     }
 
 }
