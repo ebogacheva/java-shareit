@@ -1,6 +1,7 @@
 package ru.practicum.shareit.request.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ShareItElementNotFoundException;
 import ru.practicum.shareit.item.mapper.ItemMapper;
@@ -37,7 +38,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public List<RequestWithResponsesDto> findAll(Long userId) {
         getUserIfExists(userId);
-        List<ItemRequest> requests = itemRequestRepository.findAllByRequesterId(userId);
+        Sort sort = Sort.by("created").descending();
+        List<ItemRequest> requests = itemRequestRepository.findAllByRequesterId(userId, sort);
         List<RequestWithResponsesDto> requestWithResponsesDtoList = ItemRequestMapper.toRequestWithResponsesDtoList(requests);
         return completeWithResponses(requestWithResponsesDtoList);
     }
