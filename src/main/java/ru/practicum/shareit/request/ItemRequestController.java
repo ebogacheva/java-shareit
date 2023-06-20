@@ -10,6 +10,7 @@ import ru.practicum.shareit.request.service.ItemRequestService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 /**
@@ -41,6 +42,11 @@ public class ItemRequestController {
                                             @Min(0) @RequestParam(defaultValue = "0") int from,
                                             @Min(0) @RequestParam(defaultValue = "10") int size) {
         return itemRequestServiceImpl.findAll(userId, from, size);
+    }
+
+    @GetMapping(value = "/{requestId}")
+    public RequestWithResponsesDto getById(@PathVariable Long requestId) {
+        return itemRequestServiceImpl.getById(requestId);
     }
 
 }

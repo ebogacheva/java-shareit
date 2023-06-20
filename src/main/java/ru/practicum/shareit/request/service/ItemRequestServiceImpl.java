@@ -20,13 +20,16 @@ import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ItemRequestServiceImpl implements ItemRequestService {
 
+    private static final String EXCEPTION_REQUEST_NOT_FOUND_INFO = "Request not found";
     private static final String EXCEPTION_USER_NOT_FOUND_INFO = "User not found.";
     private static final Sort SORT = Sort.by("created").descending();
+
 
     private final UserRepository userRepository;
     private final ItemRequestRepository itemRequestRepository;
@@ -43,8 +46,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public List<RequestWithResponsesDto> findAll(Long userId) {
         getUserIfExists(userId);
         List<ItemRequest> requests = itemRequestRepository.findAllByRequesterId(userId, SORT);
-        List<RequestWithResponsesDto> requestWithResponsesDtoList = ItemRequestMapper.toRequestWithResponsesDtoList(requests);
-        return completeWithResponses(requestWithResponsesDtoList);
+        List<RequestWithResponsesDto> requestsWithResponses = ItemRequestMapper.toRequestWithResponsesDtoList(requests);
+        return completeDtoList(requestsWithResponses);
     }
 
     @Override
@@ -52,9 +55,20 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         int page = from / size;
         Pageable pageable = PageRequest.of(page, size, SORT);
         Page<ItemRequest> requestPages = itemRequestRepository.findAll(userId, pageable);
-        List<RequestWithResponsesDto> requestWithResponsesDtoList = ItemRequestMapper.toRequestWithResponsesDtoList(requestPages);
-        return completeWithResponses(requestWithResponsesDtoList);
+        List<RequestWithResponsesDto> requestWithResponses = ItemRequestMapper.toRequestWithResponsesDtoList(requestPages);
+        return completeDtoList(requestWithResponses);
 
+    }
+
+    @Override
+    public RequestWithResponsesDto getById(Long requestId) {
+        ItemRequest request = getItemRequestIfExists(requestId);
+        return ItemRequestMapper.toRequestWithResponsesDto(request);
+    }
+
+    private ItemRequest getItemRequestIfExists(Long requestId) {
+        return itemRequestRepository.findById(requestId)
+                .orElseThrow(() -> new ShareItElementNotFoundException(EXCEPTION_REQUEST_NOT_FOUND_INFO));
     }
 
     private User getUserIfExists(Long userId) {
@@ -62,12 +76,14 @@ public class ItemRequestServiceImpl implements ItemRequestService {
                 .orElseThrow(() -> new ShareItElementNotFoundException(EXCEPTION_USER_NOT_FOUND_INFO));
     }
 
-    private List<RequestWithResponsesDto> completeWithResponses(List<RequestWithResponsesDto> requestDtoList) {
-        for (RequestWithResponsesDto requestDto : requestDtoList) {
-            Long id = requestDto.getId();
-            List<Item> items = itemRepository.findAllByRequestId(id);
-            requestDto.setResponses(ItemMapper.toResponsesList(items));
-        }
-        return requestDtoList;
+    private RequestWithResponsesDto completeWithResponses(RequestWithResponsesDto requestDto) {
+        Long id = requestDto.getId();
+        List<Item> items = itemRepository.findAllByRequestId(id);
+        requestDto.setResponses(ItemMapper.toResponsesList(items));
+        return requestDto;
+    }
+
+    private List<RequestWithResponsesDto> completeDtoList(List<RequestWithResponsesDto> requestDtos) {
+        return requestDtos.stream().map(this::completeWithResponses).collect(Collectors.toList());
     }
 }
