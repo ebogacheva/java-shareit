@@ -14,18 +14,13 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class ItemResponseDto {
+public class ItemFullDto {
 
     private Long id;
-    @NotNull
-    @NotBlank
     private String name;
-    @NotNull
-    @NotBlank
-    private String description;
-    @NotNull
     private Boolean available;
+    private String description;
     private BookingInItemDto lastBooking;
     private BookingInItemDto nextBooking;
-    private List<CommentResponseDto> comments;
+    private List<CommentFullDto> comments;
 }

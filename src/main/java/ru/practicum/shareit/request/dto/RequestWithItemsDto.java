@@ -1,19 +1,22 @@
 package ru.practicum.shareit.request.dto;
 
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
+import ru.practicum.shareit.item.dto.ItemInRequestDto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class ItemRequestFullDto {
+public class RequestWithItemsDto {
+
     private Long id;
     private String description;
     private Long requester;
-    @CreationTimestamp
     private LocalDateTime created;
+    private List<ItemInRequestDto> items;
+
 }

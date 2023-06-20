@@ -3,9 +3,8 @@ package ru.practicum.shareit.request;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.request.dto.ItemRequestFullDto;
-import ru.practicum.shareit.request.dto.RequestWithResponsesDto;
+import ru.practicum.shareit.request.dto.ItemRequestInputDto;
+import ru.practicum.shareit.request.dto.RequestWithItemsDto;
 import ru.practicum.shareit.request.service.ItemRequestService;
 
 import javax.validation.Valid;
@@ -21,32 +20,32 @@ import java.util.List;
 @Validated
 public class ItemRequestController {
 
-    private final ItemRequestService itemRequestServiceImpl;
+    private final ItemRequestService requestService;
 
     private static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
 
     @PostMapping
-    public ItemRequestFullDto create(@RequestHeader(X_SHARER_USER_ID) long userId,
-                                     @Valid @RequestBody ItemRequestDto itemRequestDto) {
-        return itemRequestServiceImpl.create(itemRequestDto, userId);
+    public RequestWithItemsDto create(@RequestHeader(X_SHARER_USER_ID) long userId,
+                                     @Valid @RequestBody ItemRequestInputDto itemRequestInputDto) {
+        return requestService.create(itemRequestInputDto, userId);
     }
 
     @GetMapping
-    public List<RequestWithResponsesDto> findAll(@RequestHeader(X_SHARER_USER_ID) long userId) {
-        return itemRequestServiceImpl.findAll(userId);
+    public List<RequestWithItemsDto> findAll(@RequestHeader(X_SHARER_USER_ID) long userId) {
+        return requestService.findAll(userId);
     }
 
     @GetMapping(value = "/all")
-    public List<RequestWithResponsesDto> findAll(@RequestHeader(X_SHARER_USER_ID) long userId,
-                                            @Min(0) @RequestParam(required = false, defaultValue = "0") int from,
-                                            @Min(0) @RequestParam(required = false, defaultValue = "10") int size) {
-        return itemRequestServiceImpl.findAll(userId, from, size);
+    public List<RequestWithItemsDto> findAll(@RequestHeader(X_SHARER_USER_ID) long userId,
+                                             @Min(0) @RequestParam(required = false, defaultValue = "0") int from,
+                                             @Min(0) @RequestParam(required = false, defaultValue = "10") int size) {
+        return requestService.findAll(userId, from, size);
     }
 
     @GetMapping(value = "/{requestId}")
-    public RequestWithResponsesDto getById(@RequestHeader(X_SHARER_USER_ID) long userId,
-                                           @PathVariable Long requestId) {
-        return itemRequestServiceImpl.getById(userId, requestId);
+    public RequestWithItemsDto getById(@RequestHeader(X_SHARER_USER_ID) long userId,
+                                       @PathVariable Long requestId) {
+        return requestService.getById(userId, requestId);
     }
 
 }

@@ -14,19 +14,17 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.exception.AccessForbiddenException;
 import ru.practicum.shareit.exception.NoUserBookingAvailableToComment;
 import ru.practicum.shareit.exception.ShareItElementNotFoundException;
-import ru.practicum.shareit.item.dto.CommentPostRequestDto;
-import ru.practicum.shareit.item.dto.CommentResponseDto;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemResponseDto;
+import ru.practicum.shareit.item.dto.CommentInputDto;
+import ru.practicum.shareit.item.dto.CommentFullDto;
+import ru.practicum.shareit.item.dto.ItemInputDto;
+import ru.practicum.shareit.item.dto.ItemFullDto;
 import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.request.dto.RequestWithResponsesDto;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.request.model.ItemRequestMapper;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
@@ -51,39 +49,37 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
-    private final ItemRequestRepository itemRequestRepository;
+    private final ItemRequestRepository requestRepository;
 
     @Override
     @Transactional
-    public ItemDto create(ItemDto itemDto, Long userId) {
+    public ItemInputDto create(ItemInputDto itemInputDto, Long userId) {
         User user = getUserIfExists(userId);
         ItemRequest request = null;
-        if (Objects.nonNull(itemDto.getRequestId())) {
-            request = getItemRequestIfExists(itemDto.getRequestId());
+        if (Objects.nonNull(itemInputDto.getRequestId())) {
+            request = getItemRequestIfExists(itemInputDto.getRequestId());
         }
-        Item itemFromDto = ItemMapper.toItem(itemDto, user, request);
+        Item itemFromDto = ItemMapper.toItem(itemInputDto, user, request);
         return ItemMapper.toItemDto(itemRepository.save(itemFromDto));
     }
 
     @Override
-    public ItemResponseDto getById(Long userId, Long itemId) {
+    public ItemFullDto getById(Long userId, Long itemId) {
         Item item = getItemIfExists(itemId);
-        ItemResponseDto itemResponseDto = ItemMapper.toItemResponseDto(item);
+        ItemFullDto itemFullDto = ItemMapper.toItemResponseDto(item);
         boolean isUserItemOwner = item.getOwner().getId().equals(userId);
         if (isUserItemOwner) {
-            completeItemDtoWithBookingsInfo(itemResponseDto);
-            completeItemDtoWithComments(itemResponseDto);
+            completeItemDtoWithBookingsInfo(itemFullDto);
+            completeItemDtoWithComments(itemFullDto);
         } else {
-            completeItemDtoWithComments(itemResponseDto);
+            completeItemDtoWithComments(itemFullDto);
         }
-        return itemResponseDto;
+        return itemFullDto;
     }
 
     @Override
-    public List<ItemResponseDto> findAll(Long userId, int from, int size) {
-        int page = from / size;
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Item> itemPages = itemRepository.findAllByOwnerIdOrderByIdAsc(userId, pageable);
+    public List<ItemFullDto> findAll(Long userId, int from, int size) {
+        Page<Item> itemPages = itemRepository.findAllByOwnerIdOrderByIdAsc(userId, pageRequestOf(from, size));
         return itemPages.stream()
                 .map(ItemMapper::toItemResponseDto)
                 .map(this::completeItemDtoWithBookingsInfo)
@@ -93,18 +89,18 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemDto update(ItemDto itemDto, Long userId, Long itemId) {
+    public ItemInputDto update(ItemInputDto itemInputDto, Long userId, Long itemId) {
         Item item = getItemIfExists(itemId);
         getUserIfExists(userId);
         if (!Objects.equals(item.getOwner().getId(), userId)) {
             throw new AccessForbiddenException(EXCEPTION_ACCESS_FORBIDDEN_INFO);
         }
-        ItemMapper.updateItemWithItemDto(item, itemDto);
+        ItemMapper.updateItemWithItemDto(item, itemInputDto);
         return ItemMapper.toItemDto(itemRepository.save(item));
     }
 
     @Override
-    public List<ItemDto> search(String searchBy, int from, int size) {
+    public List<ItemInputDto> search(String searchBy, int from, int size) {
         if (searchBy.isBlank()) {
             return List.of();
         }
@@ -115,7 +111,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public CommentResponseDto addComment(CommentPostRequestDto commentPostRequestDto, Long itemId, Long userId) {
+    public CommentFullDto addComment(CommentInputDto commentPostRequestDto, Long itemId, Long userId) {
         Item item = getItemIfExists(itemId);
         User user = getUserIfExists(userId);
         Comment comment = CommentMapper.toComment(commentPostRequestDto, item, user);
@@ -130,22 +126,22 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
-    private ItemResponseDto completeItemDtoWithBookingsInfo(ItemResponseDto itemResponseDto) {
-        Long itemId = itemResponseDto.getId();
+    private ItemFullDto completeItemDtoWithBookingsInfo(ItemFullDto itemFullDto) {
+        Long itemId = itemFullDto.getId();
         LocalDateTime now = LocalDateTime.now();
         Sort sortEnds = Sort.by("start").descending();
         Sort sortStarts = Sort.by("start").ascending();
         Optional<Booking> lastBooking = bookingRepository.findFirst1BookingByItemIdAndStatusAndStartBefore(itemId, BookingStatus.APPROVED, now, sortEnds);
         Optional<Booking> nextBooking = bookingRepository.findFirst1BookingByItemIdAndStatusAndStartAfter(itemId, BookingStatus.APPROVED, now, sortStarts);
-        lastBooking.ifPresent(booking -> itemResponseDto.setLastBooking(BookingMapper.toBookingInItemDto(booking)));
-        nextBooking.ifPresent(booking -> itemResponseDto.setNextBooking(BookingMapper.toBookingInItemDto(booking)));
-        return itemResponseDto;
+        lastBooking.ifPresent(booking -> itemFullDto.setLastBooking(BookingMapper.toBookingInItemDto(booking)));
+        nextBooking.ifPresent(booking -> itemFullDto.setNextBooking(BookingMapper.toBookingInItemDto(booking)));
+        return itemFullDto;
     }
 
-    private ItemResponseDto completeItemDtoWithComments(ItemResponseDto itemResponseDto) {
-        List<Comment> itemComments = commentRepository.findCommentsByItemId(itemResponseDto.getId());
-        itemResponseDto.setComments(CommentMapper.toCommentDtoList(itemComments));
-        return itemResponseDto;
+    private ItemFullDto completeItemDtoWithComments(ItemFullDto itemFullDto) {
+        List<Comment> itemComments = commentRepository.findCommentsByItemId(itemFullDto.getId());
+        itemFullDto.setComments(CommentMapper.toCommentDtoList(itemComments));
+        return itemFullDto;
     }
 
     private Item getItemIfExists(Long itemId) {
@@ -159,7 +155,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private ItemRequest getItemRequestIfExists(Long requestId) {
-        return itemRequestRepository.findById(requestId)
+        return requestRepository.findById(requestId)
                 .orElseThrow(() -> new ShareItElementNotFoundException(EXCEPTION_REQUEST_NOT_FOUND_INFO));
+    }
+
+    private static Pageable pageRequestOf(int from, int size) {
+        int page = from / size;
+        return PageRequest.of(page, size);
     }
 }

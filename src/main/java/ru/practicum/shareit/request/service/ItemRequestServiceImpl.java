@@ -10,9 +10,8 @@ import ru.practicum.shareit.exception.ShareItElementNotFoundException;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.request.dto.ItemRequestFullDto;
-import ru.practicum.shareit.request.dto.RequestWithResponsesDto;
+import ru.practicum.shareit.request.dto.ItemRequestInputDto;
+import ru.practicum.shareit.request.dto.RequestWithItemsDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.model.ItemRequestMapper;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
@@ -31,45 +30,43 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private static final Sort SORT = Sort.by("created").descending();
 
     private final UserRepository userRepository;
-    private final ItemRequestRepository itemRequestRepository;
+    private final ItemRequestRepository requestRepository;
     private final ItemRepository itemRepository;
 
     @Override
-    public ItemRequestFullDto create(ItemRequestDto itemRequestDto, Long userId) {
+    public RequestWithItemsDto create(ItemRequestInputDto itemRequestInputDto, Long userId) {
         User user = getUserIfExists(userId);
-        ItemRequest itemRequest = ItemRequestMapper.toItemRequest(itemRequestDto, user);
-        return ItemRequestMapper.toItemRequestFullDto(itemRequestRepository.save(itemRequest));
+        ItemRequest request = ItemRequestMapper.toItemRequest(itemRequestInputDto, user);
+        return ItemRequestMapper.toRequestWithItemsDto(requestRepository.save(request));
     }
 
     @Override
-    public List<RequestWithResponsesDto> findAll(Long userId) {
+    public List<RequestWithItemsDto> findAll(Long userId) {
         getUserIfExists(userId);
-        List<ItemRequest> requests = itemRequestRepository.findAllByRequesterId(userId, SORT);
-        List<RequestWithResponsesDto> requestsWithResponses = ItemRequestMapper.toRequestWithResponsesDtoList(requests);
-        return completeDtoList(requestsWithResponses);
+        List<ItemRequest> requests = requestRepository.findAllByRequesterId(userId, SORT);
+        List<RequestWithItemsDto> requestsWithItems = ItemRequestMapper.toRequestWithItemsDtoList(requests);
+        return complete(requestsWithItems);
     }
 
     @Override
-    public List<RequestWithResponsesDto> findAll(Long userId, int from, int size) {
+    public List<RequestWithItemsDto> findAll(Long userId, int from, int size) {
         getUserIfExists(userId);
-        int page = from / size;
-        Pageable pageable = PageRequest.of(page, size, SORT);
-        Page<ItemRequest> requestPages = itemRequestRepository.findAll(userId, pageable);
-        List<RequestWithResponsesDto> requestWithResponses = ItemRequestMapper.toRequestWithResponsesDtoList(requestPages);
-        return completeDtoList(requestWithResponses);
+        Page<ItemRequest> requestPages = requestRepository.findAll(userId, pageRequestOf(from, size, SORT));
+        List<RequestWithItemsDto> requestsWithItems = ItemRequestMapper.toRequestWithItemsDtoList(requestPages);
+        return complete(requestsWithItems);
 
     }
 
     @Override
-    public RequestWithResponsesDto getById(Long userId, Long requestId) {
+    public RequestWithItemsDto getById(Long userId, Long requestId) {
         getUserIfExists(userId);
         ItemRequest request = getItemRequestIfExists(requestId);
-        RequestWithResponsesDto requestWithResponses = ItemRequestMapper.toRequestWithResponsesDto(request);
-        return completeWithResponses(requestWithResponses);
+        RequestWithItemsDto requestWithItems = ItemRequestMapper.toRequestWithItemsDto(request);
+        return complete(requestWithItems);
     }
 
     private ItemRequest getItemRequestIfExists(Long requestId) {
-        return itemRequestRepository.findById(requestId)
+        return requestRepository.findById(requestId)
                 .orElseThrow(() -> new ShareItElementNotFoundException(EXCEPTION_REQUEST_NOT_FOUND_INFO));
     }
 
@@ -78,14 +75,19 @@ public class ItemRequestServiceImpl implements ItemRequestService {
                 .orElseThrow(() -> new ShareItElementNotFoundException(EXCEPTION_USER_NOT_FOUND_INFO));
     }
 
-    private RequestWithResponsesDto completeWithResponses(RequestWithResponsesDto requestDto) {
-        Long id = requestDto.getId();
-        List<Item> items = itemRepository.findAllByRequestId(id);
-        requestDto.setItems(ItemMapper.toItemResponseInRequestDtoList(items));
-        return requestDto;
+    private RequestWithItemsDto complete(RequestWithItemsDto request) {
+        Long requestId = request.getId();
+        List<Item> items = itemRepository.findAllByRequestId(requestId);
+        request.setItems(ItemMapper.toItemResponseInRequestDtoList(items));
+        return request;
     }
 
-    private List<RequestWithResponsesDto> completeDtoList(List<RequestWithResponsesDto> requestDtos) {
-        return requestDtos.stream().map(this::completeWithResponses).collect(Collectors.toList());
+    private List<RequestWithItemsDto> complete(List<RequestWithItemsDto> requests) {
+        return requests.stream().map(this::complete).collect(Collectors.toList());
+    }
+
+    private static Pageable pageRequestOf(int from, int size, Sort sort) {
+        int page = from / size;
+        return PageRequest.of(page, size, SORT);
     }
 }

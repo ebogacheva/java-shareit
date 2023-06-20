@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class CommentResponseDto {
+public class CommentFullDto {
 
     private Long id;
     private String text;

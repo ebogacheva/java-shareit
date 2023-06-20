@@ -82,10 +82,8 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingFullDto> findBookings(Long userId, String conditionName, String requester, int from, int size) {
         getUserIfExists(userId);
         composeConditionsMapIfEmpty();
-        int page = from / size;
-        Pageable pageable = PageRequest.of(page, size);
         BiFunction<Long, Pageable, Page<Booking>> repositoryMethod = getRepositoryMethod(conditionName, requester);
-        Page<Booking> bookings = repositoryMethod.apply(userId, pageable);
+        Page<Booking> bookings = repositoryMethod.apply(userId, pageRequestOf(from, size));
         return BookingMapper.toBookingDtoList(bookings);
     }
 
@@ -176,5 +174,10 @@ public class BookingServiceImpl implements BookingService {
     private boolean userIsBookingAuthor(Long userId, Long bookingId) {
         Long authorId = getBookingIfExists(bookingId).getBooker().getId();
         return Objects.equals(authorId, userId);
+    }
+
+    private static Pageable pageRequestOf(int from, int size) {
+        int page = from / size;
+        return PageRequest.of(page, size);
     }
 }

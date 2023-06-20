@@ -13,7 +13,7 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 @AllArgsConstructor
-public class ItemDto {
+public class ItemInputDto {
 
     private Long id;
     @NotNull
