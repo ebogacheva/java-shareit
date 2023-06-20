@@ -8,7 +8,11 @@ import java.util.List;
 
 public interface ItemRequestService {
 
-    public ItemRequestFullDto create(ItemRequestDto itemRequestDto, Long userId);
+    ItemRequestFullDto create(ItemRequestDto itemRequestDto, Long userId);
 
-    public List<RequestWithResponsesDto> findAll(Long userId);
+    List<RequestWithResponsesDto> findAll(Long userId);
+
+    List<RequestWithResponsesDto> findAll(Long userId, int from, int size);
+
+
 }

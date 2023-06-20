@@ -1,5 +1,6 @@
 package ru.practicum.shareit.request.model;
 
+import org.springframework.data.domain.Page;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestFullDto;
 import ru.practicum.shareit.request.dto.RequestWithResponsesDto;
@@ -26,7 +27,7 @@ public class ItemRequestMapper {
                 .build();
     }
 
-    public static RequestWithResponsesDto itemRequestWithResponsesDto(ItemRequest request) {
+    public static RequestWithResponsesDto toRequestWithResponsesDto(ItemRequest request) {
         return RequestWithResponsesDto.builder()
                 .id(request.getId())
                 .description(request.getDescription())
@@ -36,6 +37,10 @@ public class ItemRequestMapper {
     }
 
     public static List<RequestWithResponsesDto> toRequestWithResponsesDtoList(List<ItemRequest> requestItems) {
-        return requestItems.stream().map(ItemRequestMapper::itemRequestWithResponsesDto).collect(Collectors.toList());
+        return requestItems.stream().map(ItemRequestMapper::toRequestWithResponsesDto).collect(Collectors.toList());
+    }
+
+    public static List<RequestWithResponsesDto> toRequestWithResponsesDtoList(Page<ItemRequest> requests) {
+        return requests.stream().map(ItemRequestMapper::toRequestWithResponsesDto).collect(Collectors.toList());
     }
 }

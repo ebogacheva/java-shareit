@@ -1,6 +1,9 @@
 package ru.practicum.shareit.request.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ShareItElementNotFoundException;
@@ -23,6 +26,7 @@ import java.util.List;
 public class ItemRequestServiceImpl implements ItemRequestService {
 
     private static final String EXCEPTION_USER_NOT_FOUND_INFO = "User not found.";
+    private static final Sort SORT = Sort.by("created").descending();
 
     private final UserRepository userRepository;
     private final ItemRequestRepository itemRequestRepository;
@@ -32,16 +36,25 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public ItemRequestFullDto create(ItemRequestDto itemRequestDto, Long userId) {
         User user = getUserIfExists(userId);
         ItemRequest itemRequest = ItemRequestMapper.toItemRequest(itemRequestDto, user);
-        return ItemRequestMapper.toItemRequestFullDto(itemRequest);
+        return ItemRequestMapper.toItemRequestFullDto(itemRequestRepository.save(itemRequest));
     }
 
     @Override
     public List<RequestWithResponsesDto> findAll(Long userId) {
         getUserIfExists(userId);
-        Sort sort = Sort.by("created").descending();
-        List<ItemRequest> requests = itemRequestRepository.findAllByRequesterId(userId, sort);
+        List<ItemRequest> requests = itemRequestRepository.findAllByRequesterId(userId, SORT);
         List<RequestWithResponsesDto> requestWithResponsesDtoList = ItemRequestMapper.toRequestWithResponsesDtoList(requests);
         return completeWithResponses(requestWithResponsesDtoList);
+    }
+
+    @Override
+    public List<RequestWithResponsesDto> findAll(Long userId, int from, int size) {
+        int page = from / size;
+        Pageable pageable = PageRequest.of(page, size, SORT);
+        Page<ItemRequest> requestPages = itemRequestRepository.findAll(userId, pageable);
+        List<RequestWithResponsesDto> requestWithResponsesDtoList = ItemRequestMapper.toRequestWithResponsesDtoList(requestPages);
+        return completeWithResponses(requestWithResponsesDtoList);
+
     }
 
     private User getUserIfExists(Long userId) {
