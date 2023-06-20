@@ -1,7 +1,8 @@
 package ru.practicum.shareit.request.dto;
 
 import lombok.*;
-import ru.practicum.shareit.request.model.ItemResponse;
+import ru.practicum.shareit.item.dto.ItemResponseInRequestDto;
+import ru.practicum.shareit.item.model.Item;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,6 +18,6 @@ public class RequestWithResponsesDto {
     private String description;
     private Long requester;
     private LocalDateTime created;
-    private List<ItemResponse> responses;
+    private List<ItemResponseInRequestDto> items;
 
 }

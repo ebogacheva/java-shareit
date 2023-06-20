@@ -1,5 +1,7 @@
 package ru.practicum.shareit.booking;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -32,40 +34,40 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     String GET_REJECTED = " and b.status = ru.practicum.shareit.booking.model.BookingStatus.REJECTED ";
 
     @Query(ALL_BY_BOOKER + ORDER_BY_DATE)
-    List<Booking> findAllUserBookings(Long userId);
+    Page<Booking> findAllUserBookings(Long userId, Pageable pageable);
 
     @Query(ALL_BY_BOOKER + GET_CURRENT + ORDER_BY_DATE)
-    List<Booking> findCurrentUserBookings(Long userId);
+    Page<Booking> findCurrentUserBookings(Long userId, Pageable pageable);
 
     @Query(ALL_BY_BOOKER + GET_FUTURE + ORDER_BY_DATE)
-    List<Booking> findFutureUserBookings(Long userId);
+    Page<Booking> findFutureUserBookings(Long userId, Pageable pageable);
 
     @Query(ALL_BY_BOOKER + GET_PAST + ORDER_BY_DATE)
-    List<Booking> findPastUserBookings(Long userId);
+    Page<Booking> findPastUserBookings(Long userId, Pageable pageable);
 
     @Query(ALL_BY_BOOKER + GET_WAITING + ORDER_BY_DATE)
-    List<Booking> findUserBookingsWaiting(Long userId);
+    Page<Booking> findUserBookingsWaiting(Long userId, Pageable pageable);
 
     @Query(ALL_BY_BOOKER + GET_REJECTED + ORDER_BY_DATE)
-    List<Booking> findUserBookingsRejected(Long userId);
+    Page<Booking> findUserBookingsRejected(Long userId, Pageable pageable);
 
     @Query(ALL_BY_OWNER + ORDER_BY_DATE)
-    List<Booking> findAllUserItemsBookings(Long userId);
+    Page<Booking> findAllUserItemsBookings(Long userId, Pageable pageable);
 
     @Query(ALL_BY_OWNER + GET_CURRENT + ORDER_BY_DATE)
-    List<Booking> findCurrentUserItemsBookings(Long userId);
+    Page<Booking> findCurrentUserItemsBookings(Long userId, Pageable pageable);
 
     @Query(ALL_BY_OWNER + GET_FUTURE + ORDER_BY_DATE)
-    List<Booking> findFutureUserItemsBookings(Long userId);
+    Page<Booking> findFutureUserItemsBookings(Long userId, Pageable pageable);
 
     @Query(ALL_BY_OWNER + GET_PAST + ORDER_BY_DATE)
-    List<Booking> findPastUserItemsBookings(Long userId);
+    Page<Booking> findPastUserItemsBookings(Long userId, Pageable pageable);
 
     @Query(ALL_BY_OWNER + GET_WAITING + ORDER_BY_DATE)
-    List<Booking> findUserItemsBookingsWaiting(Long userId);
+    Page<Booking> findUserItemsBookingsWaiting(Long userId, Pageable pageable);
 
     @Query(ALL_BY_OWNER + GET_REJECTED + ORDER_BY_DATE)
-    List<Booking> findUserItemsBookingsRejected(Long userId);
+    Page<Booking> findUserItemsBookingsRejected(Long userId, Pageable pageable);
 
     Optional<Booking> findFirst1BookingByItemIdAndStatusAndStartBefore(Long itemId, BookingStatus status, LocalDateTime now, Sort sort);
 

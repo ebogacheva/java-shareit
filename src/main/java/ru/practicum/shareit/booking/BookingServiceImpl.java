@@ -2,6 +2,9 @@ package ru.practicum.shareit.booking;
 
 import lombok.AllArgsConstructor;
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingFullDto;
@@ -19,6 +22,7 @@ import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import static ru.practicum.shareit.booking.BookingServiceImpl.SearchCondition.ALL_FOR_BOOKER;
@@ -46,7 +50,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
-    private Map<SearchCondition, Function<Long, List<Booking>>> conditions;
+    private Map<SearchCondition, BiFunction<Long, Pageable, Page<Booking>>> conditions;
 
     @Override
     @Transactional
@@ -75,11 +79,13 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingFullDto> findBookings(Long userId, String conditionName, String requester) {
+    public List<BookingFullDto> findBookings(Long userId, String conditionName, String requester, int from, int size) {
         getUserIfExists(userId);
         composeConditionsMapIfEmpty();
-        Function<Long, List<Booking>> repositoryMethod = getRepositoryMethod(conditionName, requester);
-        List<Booking> bookings = repositoryMethod.apply(userId);
+        int page = from / size;
+        Pageable pageable = PageRequest.of(page, size);
+        BiFunction<Long, Pageable, Page<Booking>> repositoryMethod = getRepositoryMethod(conditionName, requester);
+        Page<Booking> bookings = repositoryMethod.apply(userId, pageable);
         return BookingMapper.toBookingDtoList(bookings);
     }
 
@@ -108,7 +114,7 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new UnsupportedStatusException(conditionName));
     }
 
-    private Function<Long, List<Booking>> getRepositoryMethod(String conditionName, String requester) {
+    private BiFunction<Long, Pageable, Page<Booking>> getRepositoryMethod(String conditionName, String requester) {
         SearchCondition fullSearchCondition = getFullSearchCondition(conditionName, requester);
         return conditions.get(fullSearchCondition);
     }

@@ -14,6 +14,6 @@ public interface ItemRequestService {
 
     List<RequestWithResponsesDto> findAll(Long userId, int from, int size);
 
-    RequestWithResponsesDto getById(Long requestId);
+    RequestWithResponsesDto getById(Long userId, Long requestId);
 
 }

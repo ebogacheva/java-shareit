@@ -7,6 +7,7 @@ import ru.practicum.shareit.booking.dto.BookingFullDto;
 import ru.practicum.shareit.booking.dto.BookingInputDto;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.util.List;
@@ -46,14 +47,18 @@ public class BookingController {
 
     @GetMapping
     public List<BookingFullDto> findBookingsForBooker(@RequestHeader(X_SHARER_USER_ID) long userId,
-                                                      @RequestParam(name = "state", required = false) String searchCondition) {
-        return bookingServiceImpl.findBookings(userId, searchCondition, BOOKER);
+                                                      @RequestParam(name = "state", required = false) String searchCondition,
+                                                      @Min(0) @RequestParam(required = false, defaultValue = "0") int from,
+                                                      @Min(0) @RequestParam(required = false, defaultValue = "10") int size) {
+        return bookingServiceImpl.findBookings(userId, searchCondition, BOOKER, from, size);
     }
 
     @GetMapping(value = "/owner")
     public List<BookingFullDto> findBookingsForOwner(@RequestHeader(X_SHARER_USER_ID) long userId,
-                                                     @RequestParam(name = "state", required = false)  String searchCondition) {
-        return bookingServiceImpl.findBookings(userId, searchCondition, OWNER);
+                                                     @RequestParam(name = "state", required = false)  String searchCondition,
+                                                     @Min(0) @RequestParam(required = false, defaultValue = "0") int from,
+                                                     @Min(0) @RequestParam(required = false, defaultValue = "10") int size) {
+        return bookingServiceImpl.findBookings(userId, searchCondition, OWNER, from, size);
     }
 
 }

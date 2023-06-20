@@ -10,7 +10,6 @@ import ru.practicum.shareit.request.service.ItemRequestService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.Positive;
 import java.util.List;
 
 /**
@@ -19,6 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor
+@Validated
 public class ItemRequestController {
 
     private final ItemRequestService itemRequestServiceImpl;
@@ -37,16 +37,16 @@ public class ItemRequestController {
     }
 
     @GetMapping(value = "/all")
-    @Validated
     public List<RequestWithResponsesDto> findAll(@RequestHeader(X_SHARER_USER_ID) long userId,
-                                            @Min(0) @RequestParam(defaultValue = "0") int from,
-                                            @Min(0) @RequestParam(defaultValue = "10") int size) {
+                                            @Min(0) @RequestParam(required = false, defaultValue = "0") int from,
+                                            @Min(0) @RequestParam(required = false, defaultValue = "10") int size) {
         return itemRequestServiceImpl.findAll(userId, from, size);
     }
 
     @GetMapping(value = "/{requestId}")
-    public RequestWithResponsesDto getById(@PathVariable Long requestId) {
-        return itemRequestServiceImpl.getById(requestId);
+    public RequestWithResponsesDto getById(@RequestHeader(X_SHARER_USER_ID) long userId,
+                                           @PathVariable Long requestId) {
+        return itemRequestServiceImpl.getById(userId, requestId);
     }
 
 }

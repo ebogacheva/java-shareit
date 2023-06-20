@@ -1,6 +1,9 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +24,10 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.dto.RequestWithResponsesDto;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.model.ItemRequestMapper;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
@@ -38,17 +45,23 @@ public class ItemServiceImpl implements ItemService {
     private static final String EXCEPTION_ITEM_NOT_FOUND_INFO = "Item not found.";
     private static final String EXCEPTION_ACCESS_FORBIDDEN_INFO = "Only owner can change the item.";
     private static final String EXCEPTION_BOOKING_NOT_FOUND_INFO = "No booking to comment.";
+    private static final String EXCEPTION_REQUEST_NOT_FOUND_INFO = "Request not found";
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Override
     @Transactional
     public ItemDto create(ItemDto itemDto, Long userId) {
         User user = getUserIfExists(userId);
-        Item itemFromDto = ItemMapper.toItem(itemDto, user);
+        ItemRequest request = null;
+        if (Objects.nonNull(itemDto.getRequestId())) {
+            request = getItemRequestIfExists(itemDto.getRequestId());
+        }
+        Item itemFromDto = ItemMapper.toItem(itemDto, user, request);
         return ItemMapper.toItemDto(itemRepository.save(itemFromDto));
     }
 
@@ -67,9 +80,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemResponseDto> findAll(Long userId) {
-        List<Item> items = itemRepository.findAllByOwnerIdOrderByIdAsc(userId);
-        return items.stream()
+    public List<ItemResponseDto> findAll(Long userId, int from, int size) {
+        int page = from / size;
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Item> itemPages = itemRepository.findAllByOwnerIdOrderByIdAsc(userId, pageable);
+        return itemPages.stream()
                 .map(ItemMapper::toItemResponseDto)
                 .map(this::completeItemDtoWithBookingsInfo)
                 .map(this::completeItemDtoWithComments)
@@ -89,11 +104,13 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> search(String searchBy) {
+    public List<ItemDto> search(String searchBy, int from, int size) {
         if (searchBy.isBlank()) {
             return List.of();
         }
-        return ItemMapper.toItemDtoList(itemRepository.search(searchBy));
+        int page = from / size;
+        Pageable pageable = PageRequest.of(page, size);
+        return ItemMapper.toItemDtoList(itemRepository.search(searchBy, pageable));
     }
 
     @Override
@@ -118,7 +135,7 @@ public class ItemServiceImpl implements ItemService {
         LocalDateTime now = LocalDateTime.now();
         Sort sortEnds = Sort.by("start").descending();
         Sort sortStarts = Sort.by("start").ascending();
-        Optional<Booking> lastBooking = bookingRepository.findFirst1BookingByItemIdAndStatusAndStartBefore(itemId,  BookingStatus.APPROVED, now, sortEnds);
+        Optional<Booking> lastBooking = bookingRepository.findFirst1BookingByItemIdAndStatusAndStartBefore(itemId, BookingStatus.APPROVED, now, sortEnds);
         Optional<Booking> nextBooking = bookingRepository.findFirst1BookingByItemIdAndStatusAndStartAfter(itemId, BookingStatus.APPROVED, now, sortStarts);
         lastBooking.ifPresent(booking -> itemResponseDto.setLastBooking(BookingMapper.toBookingInItemDto(booking)));
         nextBooking.ifPresent(booking -> itemResponseDto.setNextBooking(BookingMapper.toBookingInItemDto(booking)));
@@ -139,5 +156,10 @@ public class ItemServiceImpl implements ItemService {
     private User getUserIfExists(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ShareItElementNotFoundException(EXCEPTION_USER_NOT_FOUND_INFO));
+    }
+
+    private ItemRequest getItemRequestIfExists(Long requestId) {
+        return itemRequestRepository.findById(requestId)
+                .orElseThrow(() -> new ShareItElementNotFoundException(EXCEPTION_REQUEST_NOT_FOUND_INFO));
     }
 }

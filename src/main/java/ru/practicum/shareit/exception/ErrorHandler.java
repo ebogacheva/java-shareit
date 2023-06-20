@@ -14,7 +14,7 @@ import ru.practicum.shareit.user.UserController;
 import java.util.Map;
 
 @RestControllerAdvice(assignableTypes = {ItemController.class, UserController.class, ItemRequestController.class,
-        BookingController.class, MethodArgumentNotValidException.class})
+        BookingController.class, ItemRequestController.class, MethodArgumentNotValidException.class})
 public class ErrorHandler {
 
     @ExceptionHandler

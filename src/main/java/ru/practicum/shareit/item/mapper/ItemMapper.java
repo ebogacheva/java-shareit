@@ -1,9 +1,11 @@
 package ru.practicum.shareit.item.mapper;
 
+import org.springframework.data.domain.Page;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
+import ru.practicum.shareit.item.dto.ItemResponseInRequestDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.request.model.ItemResponse;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
@@ -13,12 +15,14 @@ import java.util.stream.Collectors;
 public class ItemMapper {
 
     public static ItemDto toItemDto(Item item) {
+        Long requestId = Objects.nonNull(item.getRequest()) ? item.getRequest().getId() : null;
         return new ItemDto(
                 item.getId(),
                 item.getName(),
                 item.getDescription(),
                 item.isAvailable(),
-                item.getOwner().getId()
+                item.getOwner().getId(),
+                requestId
         );
     }
 
@@ -43,30 +47,36 @@ public class ItemMapper {
         }
     }
 
-    public static Item toItem(ItemDto itemDto, User user) {
+    public static Item toItem(ItemDto itemDto, User user, ItemRequest request) {
         return Item.builder()
                 .id(itemDto.getId())
                 .name(itemDto.getName())
                 .description(itemDto.getDescription())
                 .available(itemDto.getAvailable())
                 .owner(user)
+                .request(request)
                 .build();
     }
 
-    public static List<ItemDto> toItemDtoList(List<Item> items) {
+    public static List<ItemDto> toItemDtoList(Page<Item> items) {
         return items.stream().map(ItemMapper::toItemDto).collect(Collectors.toList());
     }
 
-    public static ItemResponse toItemResponse(Item item) {
-        return ItemResponse.builder()
-                .itemId(item.getId())
-                .itemName(item.getName())
-                .userId(item.getOwner().getId())
+    public static ItemResponseInRequestDto toItemResponseInRequest(Item item) {
+        return ItemResponseInRequestDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .available(item.isAvailable())
+                .requestId(item.getRequest().getId())
                 .build();
     }
 
-    public static List<ItemResponse> toResponsesList(List<Item> items) {
-        return items.stream().map(ItemMapper::toItemResponse).collect(Collectors.toList());
+    public static List<ItemResponseInRequestDto> toItemResponseInRequestDtoList(List<Item> items) {
+        return items.stream().map(ItemMapper::toItemResponseInRequest).collect(Collectors.toList());
+    }
+    public static List<ItemResponseInRequestDto> toItemResponseInRequestDtoList(Page<Item> items) {
+        return items.stream().map(ItemMapper::toItemResponseInRequest).collect(Collectors.toList());
     }
 
 }

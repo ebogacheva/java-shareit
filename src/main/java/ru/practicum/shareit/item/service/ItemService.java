@@ -13,11 +13,11 @@ public interface ItemService {
 
     ItemResponseDto getById(Long userId, Long itemId);
 
-    List<ItemResponseDto> findAll(Long userId);
+    List<ItemResponseDto> findAll(Long userId, int from, int size);
 
     ItemDto update(ItemDto itemDto, Long userId, Long itemId);
 
-    List<ItemDto> search(String searchBy);
+    List<ItemDto> search(String searchBy, int from, int size);
 
     CommentResponseDto addComment(CommentPostRequestDto comment, Long itemId, Long userId);
 }

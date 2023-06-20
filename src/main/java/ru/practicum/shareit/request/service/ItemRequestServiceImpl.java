@@ -30,7 +30,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private static final String EXCEPTION_USER_NOT_FOUND_INFO = "User not found.";
     private static final Sort SORT = Sort.by("created").descending();
 
-
     private final UserRepository userRepository;
     private final ItemRequestRepository itemRequestRepository;
     private final ItemRepository itemRepository;
@@ -52,6 +51,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public List<RequestWithResponsesDto> findAll(Long userId, int from, int size) {
+        getUserIfExists(userId);
         int page = from / size;
         Pageable pageable = PageRequest.of(page, size, SORT);
         Page<ItemRequest> requestPages = itemRequestRepository.findAll(userId, pageable);
@@ -61,9 +61,11 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public RequestWithResponsesDto getById(Long requestId) {
+    public RequestWithResponsesDto getById(Long userId, Long requestId) {
+        getUserIfExists(userId);
         ItemRequest request = getItemRequestIfExists(requestId);
-        return ItemRequestMapper.toRequestWithResponsesDto(request);
+        RequestWithResponsesDto requestWithResponses = ItemRequestMapper.toRequestWithResponsesDto(request);
+        return completeWithResponses(requestWithResponses);
     }
 
     private ItemRequest getItemRequestIfExists(Long requestId) {
@@ -79,7 +81,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private RequestWithResponsesDto completeWithResponses(RequestWithResponsesDto requestDto) {
         Long id = requestDto.getId();
         List<Item> items = itemRepository.findAllByRequestId(id);
-        requestDto.setResponses(ItemMapper.toResponsesList(items));
+        requestDto.setItems(ItemMapper.toItemResponseInRequestDtoList(items));
         return requestDto;
     }
 
