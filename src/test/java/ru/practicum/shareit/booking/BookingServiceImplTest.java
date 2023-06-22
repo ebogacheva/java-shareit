@@ -30,7 +30,6 @@ import java.util.function.BiFunction;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
-import org.junit.jupiter.api.function.Executable;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -39,6 +38,11 @@ class BookingServiceImplTest {
 
     private static final LocalDateTime START = LocalDateTime.now().plusWeeks(1);
     private static final LocalDateTime END = LocalDateTime.now().plusWeeks(2);
+    private static final Long BOOKING_ID = 1L;
+    private static final Long USER_ID = 1L;
+    private static final Long OWNER_ID = 2L;
+    private static final Long OTHER_ID = 3L;
+    private static final Long ITEM_ID = 1L;
 
     @Mock
     private BookingRepository bookingRepository;
@@ -50,8 +54,8 @@ class BookingServiceImplTest {
     private Map<BookingServiceImpl.SearchCondition, BiFunction<Long, Pageable, Page<Booking>>> conditions;
     private BookingService bookingService;
     private BookingInputDto bookingInputDto;
-    private User user1;
-    private User user2;
+    private User user;
+    private User owner;
     private Item item;
     private Booking booking;
 
@@ -66,94 +70,136 @@ class BookingServiceImplTest {
                 .status(null)
                 .build();
 
-        user1 = User.builder()
-                .id(1L)
+        user = User.builder()
+                .id(USER_ID)
                 .name("userName")
                 .email("user@email.ru")
                 .build();
 
-        user2 = User.builder()
-                .id(2L)
-                .name("userName2")
-                .email("user2@email.ru")
+        owner = User.builder()
+                .id(OWNER_ID)
+                .name("ownerName")
+                .email("owner@email.ru")
                 .build();
 
         item = Item.builder()
-                .id(1L)
+                .id(ITEM_ID)
                 .name("itemName")
                 .description("itemDescription")
                 .available(true)
-                .owner(user2)
+                .owner(owner)
                 .request(null)
                 .build();
 
         booking = Booking.builder()
-                .id(1L)
+                .id(BOOKING_ID)
                 .start(START)
                 .end(END)
                 .item(item)
-                .booker(user1)
+                .booker(user)
                 .status(BookingStatus.WAITING)
                 .build();
     }
 
     @Test
     void create_whenUserExistItemAvailableAuthorIsNotOwner_thenReturnBookingFullDto() {
-        when(userRepository.findById(user1.getId())).thenReturn(Optional.of(user1));
-        when(itemRepository.findById(bookingInputDto.getItemId())).thenReturn(Optional.of(item));
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
+        when(itemRepository.findById(ITEM_ID)).thenReturn(Optional.of(item));
         when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
 
-        BookingFullDto actual = bookingService.create(bookingInputDto, user1.getId());
+        BookingFullDto actual = bookingService.create(bookingInputDto, user.getId());
         BookingFullDto expected = BookingMapper.toBookingFullDto(booking);
 
         assertThat(expected, samePropertyValuesAs(actual));
         verify(bookingRepository, times(1)).save(any(Booking.class));
-        verify(userRepository, times(1)).findById(user1.getId());
-        verify(itemRepository, times(2)).findById(item.getId());
-
+        verify(userRepository, times(1)).findById(USER_ID);
+        verify(itemRepository, times(2)).findById(ITEM_ID);
     }
 
     @Test
     void create_whenUserNotExistItemAvailableAuthorIsNotOwner_thenThrowNotFound() {
-        doThrow(new ShareItElementNotFoundException("User not found.")).when(userRepository).findById(user1.getId());
+        doThrow(new ShareItElementNotFoundException("User not found.")).when(userRepository).findById(user.getId());
 
-        assertThrows(ShareItElementNotFoundException.class, () -> bookingService.create(bookingInputDto, user1.getId()));
+        assertThrows(ShareItElementNotFoundException.class, () -> bookingService.create(bookingInputDto, user.getId()));
 
         verify(bookingRepository, never()).save(any(Booking.class));
         verify(itemRepository, never()).findById(item.getId());
-
     }
 
     @Test
     void create_whenUserExistItemNotAvailableAuthorIsNotOwner_thenThrowNotAvailable() {
         item.setAvailable(false);
-        when(userRepository.findById(user1.getId())).thenReturn(Optional.of(user1));
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(itemRepository.findById(bookingInputDto.getItemId())).thenReturn(Optional.of(item));
 
-        assertThrows(ItemIsUnavailableException.class, () -> bookingService.create(bookingInputDto, user1.getId()));
+        assertThrows(ItemIsUnavailableException.class, () -> bookingService.create(bookingInputDto, user.getId()));
 
-        verify(userRepository, times(1)).findById(user1.getId());
+        verify(userRepository, times(1)).findById(user.getId());
         verify(bookingRepository, never()).save(any(Booking.class));
     }
 
     @Test
     void create_whenUserExistItemIsAvailableAuthorIsOwner_thenThrowNotFound() {
-        item.setOwner(user1);
-        when(userRepository.findById(user1.getId())).thenReturn(Optional.of(user1));
+        item.setOwner(user);
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
         when(itemRepository.findById(bookingInputDto.getItemId())).thenReturn(Optional.of(item));
 
-        assertThrows(ShareItElementNotFoundException.class, () -> bookingService.create(bookingInputDto, user1.getId()));
+        assertThrows(ShareItElementNotFoundException.class, () -> bookingService.create(bookingInputDto, USER_ID));
 
-        verify(userRepository, times(1)).findById(user1.getId());
-        verify(itemRepository, times(2)).findById(item.getId());
+        verify(userRepository, times(1)).findById(USER_ID);
+        verify(itemRepository, times(2)).findById(ITEM_ID);
         verify(bookingRepository, never()).save(any(Booking.class));
     }
 
+    @Test
+    void getById_whenBookingExistUserIsOwner_thenReturnBookingFullDto() {
+        when(bookingRepository.findById(BOOKING_ID)).thenReturn(Optional.of(booking));
+        when(itemRepository.findById(ITEM_ID)).thenReturn(Optional.of(item));
 
+        BookingFullDto actual = bookingService.getById(OWNER_ID, BOOKING_ID);
+        BookingFullDto expected = BookingMapper.toBookingFullDto(booking);
+
+        assertThat(expected, samePropertyValuesAs(actual));
+        verify(bookingRepository, times(1)).findById(BOOKING_ID);
+        verify(itemRepository, times(1)).findById(ITEM_ID);
+    }
 
     @Test
-    void getById() {
+    void getById_whenBookingExistUserIsAuthor_thenReturnBookingFullDto() {
+        when(bookingRepository.findById(BOOKING_ID)).thenReturn(Optional.of(booking));
+        when(itemRepository.findById(ITEM_ID)).thenReturn(Optional.of(item));
+
+        BookingFullDto actual = bookingService.getById(USER_ID, BOOKING_ID);
+        BookingFullDto expected = BookingMapper.toBookingFullDto(booking);
+
+        assertThat(expected, samePropertyValuesAs(actual));
+        verify(bookingRepository, times(2)).findById(BOOKING_ID);
+        verify(itemRepository, times(1)).findById(ITEM_ID);
     }
+
+    @Test
+    void getById_whenBookingNotExistUserIsOwner_thenThrowNotFound() {
+        String exceptionMessage = "Booking not found.";
+        doThrow(new ShareItElementNotFoundException(exceptionMessage)).when(bookingRepository).findById(BOOKING_ID);
+
+        Exception exception = assertThrows(ShareItElementNotFoundException.class, () -> bookingService.getById(OWNER_ID, BOOKING_ID));
+
+        assertEquals(exceptionMessage, exception.getMessage());
+        verify(bookingRepository, times(1)).findById(BOOKING_ID);
+        verify(itemRepository, never()).findById(ITEM_ID);
+    }
+
+    @Test
+    void getById_whenBookingExistUserIsNeitherOwnerNorAuthor_thenThrowNotFound() {
+        when(bookingRepository.findById(BOOKING_ID)).thenReturn(Optional.of(booking));
+        when(itemRepository.findById(ITEM_ID)).thenReturn(Optional.of(item));
+
+        assertThrows(ShareItElementNotFoundException.class, () -> bookingService.getById(OTHER_ID, BOOKING_ID));
+
+        verify(bookingRepository, times(2)).findById(BOOKING_ID);
+        verify(itemRepository, times(1)).findById(ITEM_ID);
+    }
+
 
     @Test
     void findBookings() {
