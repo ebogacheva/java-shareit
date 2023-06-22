@@ -1,7 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import lombok.AllArgsConstructor;
-import org.apache.logging.log4j.util.Strings;
+import org.apache.logging.log4j.util.Strings
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +23,6 @@ import ru.practicum.shareit.user.model.User;
 
 import java.util.*;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 import static ru.practicum.shareit.booking.BookingServiceImpl.SearchCondition.ALL_FOR_BOOKER;
 import static ru.practicum.shareit.booking.BookingServiceImpl.SearchCondition.ALL_FOR_OWNER;
