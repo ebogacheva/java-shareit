@@ -8,6 +8,8 @@ import static org.mockito.ArgumentMatchers.any;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.dto.BookingFullDto;
 import ru.practicum.shareit.booking.dto.BookingInputDto;
@@ -16,6 +18,7 @@ import ru.practicum.shareit.booking.model.BookingMapper;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.exception.ItemIsUnavailableException;
 import ru.practicum.shareit.exception.ShareItElementNotFoundException;
+import ru.practicum.shareit.exception.UnsupportedStatusException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.UserRepository;
@@ -23,6 +26,8 @@ import ru.practicum.shareit.user.model.User;
 
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -43,6 +48,10 @@ class BookingServiceImplTest {
     private static final Long OWNER_ID = 2L;
     private static final Long OTHER_ID = 3L;
     private static final Long ITEM_ID = 1L;
+    private static final String REQUESTER_OWNER = "_FOR_OWNER";
+    private static final String CORRECT_CONDITION_NAME = "WAITING";
+    private static final Pageable PAGEABLE = PageRequest.of(0, 20);
+    private static Page<Booking> PAGES;
 
     @Mock
     private BookingRepository bookingRepository;
@@ -51,7 +60,7 @@ class BookingServiceImplTest {
     @Mock
     private ItemRepository itemRepository;
 
-    private Map<BookingServiceImpl.SearchCondition, BiFunction<Long, Pageable, Page<Booking>>> conditions;
+    private Map<BookingServiceImpl.SearchCondition, BiFunction<Long, Pageable, Page<Booking>>> conditions = new HashMap<>();
     private BookingService bookingService;
     private BookingInputDto bookingInputDto;
     private User user;
@@ -99,6 +108,7 @@ class BookingServiceImplTest {
                 .booker(user)
                 .status(BookingStatus.WAITING)
                 .build();
+        PAGES = new PageImpl<>(List.of(booking), PAGEABLE, 1);
     }
 
     @Test
@@ -200,12 +210,55 @@ class BookingServiceImplTest {
         verify(itemRepository, times(1)).findById(ITEM_ID);
     }
 
-
     @Test
-    void findBookings() {
+    void findBookings_whenUserNotExistCorrectConditionNameCorrectRequester_thenThrowNotFound() {
+        String expectedExceptionMessage = "User not found.";
+        doThrow(new ShareItElementNotFoundException(expectedExceptionMessage)).when(userRepository).findById(USER_ID);
+
+        Exception exception = assertThrows(ShareItElementNotFoundException.class,
+                () -> bookingService.findBookings(USER_ID, CORRECT_CONDITION_NAME, REQUESTER_OWNER, 0, 20));
+        assertEquals(expectedExceptionMessage, exception.getMessage());
+        verifyNoInteractions(bookingRepository);
     }
 
     @Test
+    void findBookings_whenUserExistConditionNameIncorrect_thenThrowUnsupported() {
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
+        String incorrectConditionName = "WAITINGG";
+
+        Exception exception = assertThrows(UnsupportedStatusException.class,
+                () -> bookingService.findBookings(USER_ID, incorrectConditionName, REQUESTER_OWNER, 0, 20));
+        assertThat(exception.getMessage(), containsString(incorrectConditionName));
+        verifyNoInteractions(bookingRepository);
+    }
+
+    @Test
+    void findBookings_whenUserExistConditionNameEmpty_thenReturnBookingFullDtoList() {
+        String emptyConditionName = "";
+        when(userRepository.findById(OWNER_ID)).thenReturn(Optional.of(owner));
+        when(bookingRepository.findAllUserItemsBookings(OWNER_ID, PAGEABLE))
+                .thenReturn(PAGES);
+        List<BookingFullDto> expected = BookingMapper.toBookingDtoList(PAGES);
+        List<BookingFullDto> actual = bookingService.findBookings(OWNER_ID, emptyConditionName, REQUESTER_OWNER, 0, 20);
+
+        assertTrue(expected.size() == actual.size() && expected.containsAll(actual) && actual.containsAll(expected));
+        verify(userRepository, times(1)).findById(OWNER_ID);
+    }
+
+    @Test
+    void findBookings_whenUserExistConditionNameCorrect_thenReturnBookingFullDtoList() {
+        when(userRepository.findById(OWNER_ID)).thenReturn(Optional.of(owner));
+        when(bookingRepository.findUserItemsBookingsWaiting(OWNER_ID, PAGEABLE))
+                .thenReturn(PAGES);
+
+        List<BookingFullDto> expected = BookingMapper.toBookingDtoList(PAGES);
+        List<BookingFullDto> actual = bookingService.findBookings(OWNER_ID, CORRECT_CONDITION_NAME, REQUESTER_OWNER, 0, 20);
+
+        assertTrue(expected.size() == actual.size() && expected.containsAll(actual) && actual.containsAll(expected));
+        verify(userRepository, times(1)).findById(OWNER_ID);
+    }
+
+        @Test
     void setStatus() {
     }
 }

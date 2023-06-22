@@ -128,7 +128,7 @@ public class BookingServiceImpl implements BookingService {
         PAST_FOR_OWNER,
         FUTURE_FOR_OWNER,
         WAITING_FOR_OWNER,
-        REJECTED_FOR_OWNER;
+        REJECTED_FOR_OWNER
     }
 
     private void composeConditionsMapIfEmpty() {
