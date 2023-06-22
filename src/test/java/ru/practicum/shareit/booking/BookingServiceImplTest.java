@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
 
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
@@ -16,6 +18,7 @@ import ru.practicum.shareit.booking.dto.BookingInputDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingMapper;
 import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.exception.BookingIsAlreadyApprovedException;
 import ru.practicum.shareit.exception.ItemIsUnavailableException;
 import ru.practicum.shareit.exception.ShareItElementNotFoundException;
 import ru.practicum.shareit.exception.UnsupportedStatusException;
@@ -35,6 +38,7 @@ import java.util.function.BiFunction;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -67,6 +71,9 @@ class BookingServiceImplTest {
     private User owner;
     private Item item;
     private Booking booking;
+
+    @Captor
+    ArgumentCaptor<Booking> bookingCaptor;
 
     @BeforeEach
     void beforeEach() {
@@ -128,7 +135,7 @@ class BookingServiceImplTest {
 
     @Test
     void create_whenUserNotExistItemAvailableAuthorIsNotOwner_thenThrowNotFound() {
-        doThrow(new ShareItElementNotFoundException("User not found.")).when(userRepository).findById(user.getId());
+        when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
 
         assertThrows(ShareItElementNotFoundException.class, () -> bookingService.create(bookingInputDto, user.getId()));
 
@@ -190,7 +197,7 @@ class BookingServiceImplTest {
     @Test
     void getById_whenBookingNotExistUserIsOwner_thenThrowNotFound() {
         String exceptionMessage = "Booking not found.";
-        doThrow(new ShareItElementNotFoundException(exceptionMessage)).when(bookingRepository).findById(BOOKING_ID);
+        when(bookingRepository.findById(BOOKING_ID)).thenReturn(Optional.empty());
 
         Exception exception = assertThrows(ShareItElementNotFoundException.class, () -> bookingService.getById(OWNER_ID, BOOKING_ID));
 
@@ -213,7 +220,7 @@ class BookingServiceImplTest {
     @Test
     void findBookings_whenUserNotExistCorrectConditionNameCorrectRequester_thenThrowNotFound() {
         String expectedExceptionMessage = "User not found.";
-        doThrow(new ShareItElementNotFoundException(expectedExceptionMessage)).when(userRepository).findById(USER_ID);
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
 
         Exception exception = assertThrows(ShareItElementNotFoundException.class,
                 () -> bookingService.findBookings(USER_ID, CORRECT_CONDITION_NAME, REQUESTER_OWNER, 0, 20));
@@ -258,7 +265,89 @@ class BookingServiceImplTest {
         verify(userRepository, times(1)).findById(OWNER_ID);
     }
 
-        @Test
-    void setStatus() {
+    @Test
+    void setStatusApproved_whenBookingExistUserIsOwner_thenReturnBookingFullDtoWithApprovedStatus() {
+        when(bookingRepository.findById(BOOKING_ID)).thenReturn(Optional.of(booking));
+        when(itemRepository.findById(ITEM_ID)).thenReturn(Optional.of(item));
+        when(bookingRepository.save(booking)).thenReturn(booking);
+
+        BookingFullDto actualDto = bookingService.setStatus(OWNER_ID,BOOKING_ID, true);
+
+        booking.setStatus(BookingStatus.APPROVED);
+        BookingFullDto expectedDto = BookingMapper.toBookingFullDto(booking);
+        assertThat(actualDto, samePropertyValuesAs(expectedDto));
+
+        verify(bookingRepository).save(bookingCaptor.capture());
+        Booking actual = bookingCaptor.getValue();
+        assertThat(actual.getStatus(), is(BookingStatus.APPROVED));
+
+        verify(bookingRepository, times(1)).findById(BOOKING_ID);
+        verify(itemRepository, times(1)).findById(ITEM_ID);
+        verify(bookingRepository, times(1)).save(any());
+    }
+
+    @Test
+    void setStatusApproved_whenBookingNotExist_thenThrowNotFound() {
+        when(bookingRepository.findById(anyLong())).thenReturn(Optional.empty());
+        String messageExpected = "Booking not found.";
+
+        Exception exception = assertThrows(ShareItElementNotFoundException.class, () -> bookingService.setStatus(OWNER_ID, BOOKING_ID, true));
+
+        assertThat(exception.getMessage(), is(messageExpected));
+        verify(bookingRepository, times(1)).findById(BOOKING_ID);
+        verify(itemRepository, never()).findById(ITEM_ID);
+        verify(bookingRepository, never()).save(any());
+    }
+
+    @Test
+    void setStatusApproved_whenBookingExistUserIsNotOwner_thenThrowNotFound() {
+        when(bookingRepository.findById(BOOKING_ID)).thenReturn(Optional.of(booking));
+        when(itemRepository.findById(ITEM_ID)).thenReturn(Optional.of(item));
+        String messageExpected = "Item not found.";
+
+        Exception exception = assertThrows(ShareItElementNotFoundException.class,
+                () -> bookingService.setStatus(USER_ID, BOOKING_ID, true));
+
+        assertThat(exception.getMessage(), is(messageExpected));
+        verify(bookingRepository, times(1)).findById(BOOKING_ID);
+        verify(itemRepository, times(1)).findById(ITEM_ID);
+        verify(bookingRepository, never()).save(any());
+    }
+
+    @Test
+    void setStatusApproved_whenBookingExistUserIsOwnerStatusIsApproved_thenThrowNotFound() {
+        booking.setStatus(BookingStatus.APPROVED);
+        when(bookingRepository.findById(BOOKING_ID)).thenReturn(Optional.of(booking));
+        when(itemRepository.findById(ITEM_ID)).thenReturn(Optional.of(item));
+        String messageExpected = "Booking not found.";
+
+        Exception exception = assertThrows(BookingIsAlreadyApprovedException.class,
+                () -> bookingService.setStatus(OWNER_ID, BOOKING_ID, true));
+
+        assertThat(exception.getMessage(), is(messageExpected));
+        verify(bookingRepository, times(1)).findById(BOOKING_ID);
+        verify(itemRepository, times(1)).findById(ITEM_ID);
+        verify(bookingRepository, never()).save(any());
+    }
+
+    @Test
+    void setStatusRejected_whenBookingExistUserIsOwner_thenReturnBookingFullDtoWithRejectedStatus() {
+        when(bookingRepository.findById(BOOKING_ID)).thenReturn(Optional.of(booking));
+        when(itemRepository.findById(ITEM_ID)).thenReturn(Optional.of(item));
+        when(bookingRepository.save(booking)).thenReturn(booking);
+
+        BookingFullDto actualDto = bookingService.setStatus(OWNER_ID,BOOKING_ID, false);
+
+        booking.setStatus(BookingStatus.REJECTED);
+        BookingFullDto expectedDto = BookingMapper.toBookingFullDto(booking);
+        assertThat(actualDto, samePropertyValuesAs(expectedDto));
+
+        verify(bookingRepository).save(bookingCaptor.capture());
+        Booking actual = bookingCaptor.getValue();
+        assertThat(actual.getStatus(), is(BookingStatus.REJECTED));
+
+        verify(bookingRepository, times(1)).findById(BOOKING_ID);
+        verify(itemRepository, times(1)).findById(ITEM_ID);
+        verify(bookingRepository, times(1)).save(any());
     }
 }
