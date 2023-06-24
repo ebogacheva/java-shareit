@@ -14,10 +14,7 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.exception.AccessForbiddenException;
 import ru.practicum.shareit.exception.NoUserBookingAvailableToComment;
 import ru.practicum.shareit.exception.ShareItElementNotFoundException;
-import ru.practicum.shareit.item.dto.CommentInputDto;
-import ru.practicum.shareit.item.dto.CommentFullDto;
-import ru.practicum.shareit.item.dto.ItemInputDto;
-import ru.practicum.shareit.item.dto.ItemFullDto;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
@@ -53,14 +50,14 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemInputDto create(ItemInputDto itemInputDto, Long userId) {
+    public ItemOutDto create(ItemInputDto itemInputDto, Long userId) {
         User user = getUserIfExists(userId);
         ItemRequest request = null;
         if (Objects.nonNull(itemInputDto.getRequestId())) {
             request = getItemRequestIfExists(itemInputDto.getRequestId());
         }
         Item itemFromDto = ItemMapper.toItem(itemInputDto, user, request);
-        return ItemMapper.toItemDto(itemRepository.save(itemFromDto));
+        return ItemMapper.toItemOutDto(itemRepository.save(itemFromDto));
     }
 
     @Override
@@ -89,18 +86,18 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemInputDto update(ItemInputDto itemInputDto, Long userId, Long itemId) {
+    public ItemOutDto update(ItemInputDto itemInputDto, Long userId, Long itemId) {
         Item item = getItemIfExists(itemId);
         getUserIfExists(userId);
         if (!Objects.equals(item.getOwner().getId(), userId)) {
             throw new AccessForbiddenException(EXCEPTION_ACCESS_FORBIDDEN_INFO);
         }
         ItemMapper.updateItemWithItemDto(item, itemInputDto);
-        return ItemMapper.toItemDto(itemRepository.save(item));
+        return ItemMapper.toItemOutDto(itemRepository.save(item));
     }
 
     @Override
-    public List<ItemInputDto> search(String searchBy, int from, int size) {
+    public List<ItemOutDto> search(String searchBy, int from, int size) {
         if (searchBy.isBlank()) {
             return List.of();
         }
@@ -131,8 +128,10 @@ public class ItemServiceImpl implements ItemService {
         LocalDateTime now = LocalDateTime.now();
         Sort sortEnds = Sort.by("start").descending();
         Sort sortStarts = Sort.by("start").ascending();
-        Optional<Booking> lastBooking = bookingRepository.findFirst1BookingByItemIdAndStatusAndStartBefore(itemId, BookingStatus.APPROVED, now, sortEnds);
-        Optional<Booking> nextBooking = bookingRepository.findFirst1BookingByItemIdAndStatusAndStartAfter(itemId, BookingStatus.APPROVED, now, sortStarts);
+        Optional<Booking> lastBooking = bookingRepository
+                .findFirst1BookingByItemIdAndStatusAndStartBefore(itemId, BookingStatus.APPROVED, now, sortEnds);
+        Optional<Booking> nextBooking = bookingRepository
+                .findFirst1BookingByItemIdAndStatusAndStartAfter(itemId, BookingStatus.APPROVED, now, sortStarts);
         lastBooking.ifPresent(booking -> itemFullDto.setLastBooking(BookingMapper.toBookingInItemDto(booking)));
         nextBooking.ifPresent(booking -> itemFullDto.setNextBooking(BookingMapper.toBookingInItemDto(booking)));
         return itemFullDto;

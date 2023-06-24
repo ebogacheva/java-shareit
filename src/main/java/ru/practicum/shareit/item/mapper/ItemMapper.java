@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import ru.practicum.shareit.item.dto.ItemInputDto;
 import ru.practicum.shareit.item.dto.ItemFullDto;
 import ru.practicum.shareit.item.dto.ItemInRequestDto;
+import ru.practicum.shareit.item.dto.ItemOutDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
@@ -15,9 +16,9 @@ import java.util.stream.Collectors;
 
 public class ItemMapper {
 
-    public static ItemInputDto toItemDto(Item item) {
+    public static ItemOutDto toItemOutDto(Item item) {
         Long requestId = Objects.nonNull(item.getRequest()) ? item.getRequest().getId() : null;
-        return new ItemInputDto(
+        return new ItemOutDto(
                 item.getId(),
                 item.getName(),
                 item.getDescription(),
@@ -59,9 +60,9 @@ public class ItemMapper {
                 .build();
     }
 
-    public static List<ItemInputDto> toItemDtoList(Page<Item> pageOfItems) {
+    public static List<ItemOutDto> toItemDtoList(Page<Item> pageOfItems) {
         List<Item> items = pageOfItems.getContent();
-        return items.stream().map(ItemMapper::toItemDto).collect(Collectors.toList());
+        return items.stream().map(ItemMapper::toItemOutDto).collect(Collectors.toList());
     }
 
     public static ItemInRequestDto toItemResponseInRequest(Item item) {

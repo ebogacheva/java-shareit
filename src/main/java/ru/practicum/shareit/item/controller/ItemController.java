@@ -2,10 +2,7 @@ package ru.practicum.shareit.item.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.dto.CommentInputDto;
-import ru.practicum.shareit.item.dto.CommentFullDto;
-import ru.practicum.shareit.item.dto.ItemInputDto;
-import ru.practicum.shareit.item.dto.ItemFullDto;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
@@ -24,7 +21,7 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    public ItemInputDto create(@RequestHeader(X_SHARER_USER_ID) long userId,
+    public ItemOutDto create(@RequestHeader(X_SHARER_USER_ID) long userId,
                                @Valid @RequestBody ItemInputDto itemInputDto) {
         return itemService.create(itemInputDto, userId);
     }
@@ -43,14 +40,14 @@ public class ItemController {
     }
 
     @PatchMapping(value = "/{itemId}")
-    public ItemInputDto update(@RequestHeader(X_SHARER_USER_ID) long userId,
-                               @PathVariable Long itemId,
-                               @RequestBody ItemInputDto itemInputDto) {
+    public ItemOutDto update(@RequestHeader(X_SHARER_USER_ID) long userId,
+                             @PathVariable Long itemId,
+                             @RequestBody ItemInputDto itemInputDto) {
         return itemService.update(itemInputDto, userId, itemId);
     }
 
     @GetMapping(value = "/search")
-    public List<ItemInputDto> search(@RequestParam(value = "text", defaultValue = "", required = false) String searchBy,
+    public List<ItemOutDto> search(@RequestParam(value = "text", defaultValue = "", required = false) String searchBy,
                                      @Min(0) @RequestParam(required = false, defaultValue = "0") int from,
                                      @Min(0) @RequestParam(required = false, defaultValue = "10") int size) {
         return itemService.search(searchBy, from, size);

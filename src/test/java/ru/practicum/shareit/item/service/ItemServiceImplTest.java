@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.booking.BookingRepository;
@@ -13,6 +14,7 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.exception.ShareItElementNotFoundException;
 import ru.practicum.shareit.item.dto.ItemFullDto;
 import ru.practicum.shareit.item.dto.ItemInputDto;
+import ru.practicum.shareit.item.dto.ItemOutDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
@@ -64,7 +66,8 @@ class ItemServiceImplTest {
     @Mock
     private ItemRequestRepository requestRepository;
 
-    private ItemService itemService;
+    @InjectMocks
+    private ItemServiceImpl itemService;
 
     @BeforeEach
     void beforeEach() {
@@ -121,8 +124,8 @@ class ItemServiceImplTest {
         when(requestRepository.findById(REQUEST_ID)).thenReturn(Optional.of(request));
         when(itemRepository.save(ArgumentMatchers.any(Item.class))).thenReturn(item);
 
-        ItemInputDto actual = itemService.create(itemInputDto, OWNER_ID);
-        ItemInputDto expected = ItemMapper.toItemDto(item);
+        ItemOutDto actual = itemService.create(itemInputDto, OWNER_ID);
+        ItemOutDto expected = ItemMapper.toItemOutDto(item);
 
         assertThat(actual, samePropertyValuesAs(expected));
         verify(userRepository, times(1)).findById(OWNER_ID);
@@ -133,12 +136,11 @@ class ItemServiceImplTest {
     void createItem_whenUserExistRequestIsNull_thenReturnItemDto() {
         itemInputDto.setRequestId(null);
         item.setRequest(null);
-
         when(userRepository.findById(OWNER_ID)).thenReturn(Optional.of(user));
         when(itemRepository.save(ArgumentMatchers.any(Item.class))).thenReturn(item);
 
-        ItemInputDto actual = itemService.create(itemInputDto, OWNER_ID);
-        ItemInputDto expected = ItemMapper.toItemDto(item);
+        ItemOutDto actual = itemService.create(itemInputDto, OWNER_ID);
+        ItemOutDto expected = ItemMapper.toItemOutDto(item);
 
         assertThat(actual, samePropertyValuesAs(expected));
         verify(userRepository, times(1)).findById(OWNER_ID);
