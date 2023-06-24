@@ -41,7 +41,8 @@ public class BookingMapper {
                 .build();
     }
 
-    public static List<BookingFullDto> toBookingDtoList(Page<Booking> bookings) {
+    public static List<BookingFullDto> toBookingDtoList(Page<Booking> pageOfBookings) {
+        List<Booking> bookings = pageOfBookings.getContent();
         return bookings.stream().map(BookingMapper::toBookingFullDto).collect(Collectors.toList());
     }
 }

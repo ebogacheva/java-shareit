@@ -55,9 +55,9 @@ public class BookingController {
 
     @GetMapping(value = "/owner")
     public List<BookingFullDto> findBookingsForOwner(@RequestHeader(X_SHARER_USER_ID) long userId,
-                                                     @RequestParam(name = "state", required = false)  String searchCondition,
-                                                     @Min(0) @RequestParam(required = false, defaultValue = "0") int from,
-                                                     @Min(0) @RequestParam(required = false, defaultValue = "10") int size) {
+                                              @RequestParam(name = "state", required = false)  String searchCondition,
+                                              @Min(0) @RequestParam(required = false, defaultValue = "0") int from,
+                                              @Min(0) @RequestParam(required = false, defaultValue = "10") int size) {
         return bookingServiceImpl.findBookings(userId, searchCondition, OWNER, from, size);
     }
 

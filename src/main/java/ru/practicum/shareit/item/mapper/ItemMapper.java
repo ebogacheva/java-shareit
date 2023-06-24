@@ -8,6 +8,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -58,7 +59,8 @@ public class ItemMapper {
                 .build();
     }
 
-    public static List<ItemInputDto> toItemDtoList(Page<Item> items) {
+    public static List<ItemInputDto> toItemDtoList(Page<Item> pageOfItems) {
+        List<Item> items = pageOfItems.getContent();
         return items.stream().map(ItemMapper::toItemDto).collect(Collectors.toList());
     }
 
@@ -75,8 +77,4 @@ public class ItemMapper {
     public static List<ItemInRequestDto> toItemResponseInRequestDtoList(List<Item> items) {
         return items.stream().map(ItemMapper::toItemResponseInRequest).collect(Collectors.toList());
     }
-    public static List<ItemInRequestDto> toItemResponseInRequestDtoList(Page<Item> items) {
-        return items.stream().map(ItemMapper::toItemResponseInRequest).collect(Collectors.toList());
-    }
-
 }
