@@ -11,6 +11,7 @@ import java.util.List;
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 public class RequestWithItemsDto {
 
     private Long id;

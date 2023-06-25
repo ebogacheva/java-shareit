@@ -29,7 +29,8 @@ public class ItemRequestMapper {
         return requests.stream().map(ItemRequestMapper::toRequestWithItemsDto).collect(Collectors.toList());
     }
 
-    public static List<RequestWithItemsDto> toRequestWithItemsDtoList(Page<ItemRequest> requests) {
+    public static List<RequestWithItemsDto> toRequestWithItemsDtoList(Page<ItemRequest> pageOfRequests) {
+        List<ItemRequest> requests = pageOfRequests.getContent();
         return requests.stream().map(ItemRequestMapper::toRequestWithItemsDto).collect(Collectors.toList());
     }
 }

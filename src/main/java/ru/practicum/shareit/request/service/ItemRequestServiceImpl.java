@@ -54,7 +54,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         Page<ItemRequest> requestPages = requestRepository.findAll(userId, pageRequestOf(from, size, SORT));
         List<RequestWithItemsDto> requestsWithItems = ItemRequestMapper.toRequestWithItemsDtoList(requestPages);
         return complete(requestsWithItems);
-
     }
 
     @Override
