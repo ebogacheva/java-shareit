@@ -5,9 +5,7 @@ import org.hibernate.result.NoMoreReturnsException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 import ru.practicum.shareit.booking.BookingRepository;
@@ -96,6 +94,9 @@ class ItemServiceImplTest {
 
     @InjectMocks
     private ItemServiceImpl itemService;
+
+    @Captor
+    ArgumentCaptor<Item> itemCaptor;
 
     @BeforeEach
     void beforeEach() {
@@ -407,7 +408,7 @@ class ItemServiceImplTest {
         item.setDescription(changed);
         when(itemRepository.findById(ITEM_ID)).thenReturn(Optional.of(item));
         when(userRepository.findById(OWNER_ID)).thenReturn(Optional.of(owner));
-        when(itemRepository.save(item)).thenReturn(item);
+        when(itemRepository.save(itemCaptor.capture())).thenReturn(item);
 
         ItemOutDto expected = itemOutDto;
         ItemOutDto actual = itemService.update(itemInputDto, OWNER_ID, ITEM_ID);
@@ -417,6 +418,8 @@ class ItemServiceImplTest {
         verify(itemRepository, times(1)).findById(ITEM_ID);
         verify(userRepository, times(1)).findById(OWNER_ID);
         verify(itemRepository, times(1)).save(item);
+        Item shouldBeUpdatedWithChangedDescription = itemCaptor.getValue();
+        assertEquals(item, shouldBeUpdatedWithChangedDescription);
     }
 
     @Test

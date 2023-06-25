@@ -34,14 +34,14 @@ public class BookingController {
 
     @PatchMapping(value = "/{bookingId}")
     public BookingFullDto update(@RequestHeader(X_SHARER_USER_ID) long userId,
-                                 @Positive @PathVariable Long bookingId,
+                                 @Min(0) @PathVariable Long bookingId,
                                  @NotNull @RequestParam Boolean approved) {
         return bookingServiceImpl.setStatus(userId, bookingId, approved);
     }
 
     @GetMapping(value = "/{bookingId}")
     public BookingFullDto getById(@RequestHeader(X_SHARER_USER_ID) long userId,
-                                  @Positive @PathVariable Long bookingId) {
+                                  @Min(0) @PathVariable Long bookingId) {
         return bookingServiceImpl.getById(userId, bookingId);
     }
 
