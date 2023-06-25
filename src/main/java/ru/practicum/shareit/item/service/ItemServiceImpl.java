@@ -63,7 +63,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemFullDto getById(Long userId, Long itemId) {
         Item item = getItemIfExists(itemId);
-        ItemFullDto itemFullDto = ItemMapper.toItemResponseDto(item);
+        ItemFullDto itemFullDto = ItemMapper.toItemFullDto(item);
         boolean isUserItemOwner = item.getOwner().getId().equals(userId);
         if (isUserItemOwner) {
             completeItemDtoWithBookingsInfo(itemFullDto);
@@ -78,7 +78,7 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemFullDto> findAll(Long userId, int from, int size) {
         Page<Item> itemPages = itemRepository.findAllByOwnerIdOrderByIdAsc(userId, pageRequestOf(from, size));
         return itemPages.stream()
-                .map(ItemMapper::toItemResponseDto)
+                .map(ItemMapper::toItemFullDto)
                 .map(this::completeItemDtoWithBookingsInfo)
                 .map(this::completeItemDtoWithComments)
                 .collect(Collectors.toList());
@@ -108,10 +108,10 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public CommentFullDto addComment(CommentInputDto commentPostRequestDto, Long itemId, Long userId) {
+    public CommentFullDto addComment(CommentInputDto commentInputDto, Long itemId, Long userId) {
         Item item = getItemIfExists(itemId);
         User user = getUserIfExists(userId);
-        Comment comment = CommentMapper.toComment(commentPostRequestDto, item, user);
+        Comment comment = CommentMapper.toComment(commentInputDto, item, user);
         Optional<Booking> userBookingOfItem =
                 bookingRepository.findFirst1BookingByBookerIdAndItemIdAndStatusAndStartBefore(
                         userId, itemId, BookingStatus.APPROVED, LocalDateTime.now()
@@ -126,12 +126,11 @@ public class ItemServiceImpl implements ItemService {
     private ItemFullDto completeItemDtoWithBookingsInfo(ItemFullDto itemFullDto) {
         Long itemId = itemFullDto.getId();
         LocalDateTime now = LocalDateTime.now();
-        Sort sortEnds = Sort.by("start").descending();
-        Sort sortStarts = Sort.by("start").ascending();
+        Sort sort = Sort.by("start").descending();
         Optional<Booking> lastBooking = bookingRepository
-                .findFirst1BookingByItemIdAndStatusAndStartBefore(itemId, BookingStatus.APPROVED, now, sortEnds);
+                .findFirst1BookingByItemIdAndStatusAndStartBefore(itemId, BookingStatus.APPROVED, now, sort);
         Optional<Booking> nextBooking = bookingRepository
-                .findFirst1BookingByItemIdAndStatusAndStartAfter(itemId, BookingStatus.APPROVED, now, sortStarts);
+                .findFirst1BookingByItemIdAndStatusAndStartAfter(itemId, BookingStatus.APPROVED, now, sort);
         lastBooking.ifPresent(booking -> itemFullDto.setLastBooking(BookingMapper.toBookingInItemDto(booking)));
         nextBooking.ifPresent(booking -> itemFullDto.setNextBooking(BookingMapper.toBookingInItemDto(booking)));
         return itemFullDto;

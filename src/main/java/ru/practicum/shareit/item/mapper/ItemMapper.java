@@ -9,7 +9,6 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -28,7 +27,7 @@ public class ItemMapper {
         );
     }
 
-    public static ItemFullDto toItemResponseDto(Item item) {
+    public static ItemFullDto toItemFullDto(Item item) {
         return ItemFullDto.builder()
                 .id(item.getId())
                 .name(item.getName())
