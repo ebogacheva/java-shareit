@@ -18,7 +18,7 @@ public class CommentMapper {
                 .build();
     }
 
-    public static CommentFullDto toCommentResponseDto(Comment comment) {
+    public static CommentFullDto toCommentFullDto(Comment comment) {
         return CommentFullDto.builder()
                 .id(comment.getId())
                 .text(comment.getText())
@@ -29,6 +29,6 @@ public class CommentMapper {
     }
 
     public static List<CommentFullDto> toCommentDtoList(List<Comment> comments) {
-        return comments.stream().map(CommentMapper::toCommentResponseDto).collect(Collectors.toList());
+        return comments.stream().map(CommentMapper::toCommentFullDto).collect(Collectors.toList());
     }
 }

@@ -138,7 +138,7 @@ class BookingControllerTest {
 
     @SneakyThrows
     @Test
-    void create_whenInvalidInputBookingDtoStartAfterEnd_thenBadRequestThrowException() {
+    void create_whenInvalidInputBookingDtoStartAfterEnd_thenBadRequest() {
 
         bookingInputDto.setStart(END);
         bookingInputDto.setEnd(START);
@@ -177,7 +177,7 @@ class BookingControllerTest {
 
     @SneakyThrows
     @Test
-    void update_whenInvalidInputNegativeBookingId_thenBadRequestThrowException() {
+    void update_whenInvalidInputNegativeBookingId_thenBadRequest() {
 
         mockMvc.perform(patch("/bookings/{bookingId}", INVALID_BOOKING_ID)
                         .header(X_SHARER_USER_ID, USER_ID)
@@ -194,7 +194,7 @@ class BookingControllerTest {
 
     @SneakyThrows
     @Test
-    void update_whenInvalidInputNotSpecifiedApproved_thenBadRequestThrowException() {
+    void update_whenInvalidInputNotSpecifiedApproved_thenBadRequest() {
         mockMvc.perform(patch("/bookings/{bookingId}", BOOKING_ID_1)
                         .header(X_SHARER_USER_ID, USER_ID)
                         .contentType("application/json")
@@ -223,7 +223,7 @@ class BookingControllerTest {
 
     @SneakyThrows
     @Test
-    void getById_whenInvalidInputNegativeBookingId_thenBadRequestAndThrowException() {
+    void getById_whenInvalidInputNegativeBookingId_thenBadRequest() {
 
         mockMvc.perform(get("/bookings/{bookingId}", INVALID_BOOKING_ID)
                         .header(X_SHARER_USER_ID, USER_ID)

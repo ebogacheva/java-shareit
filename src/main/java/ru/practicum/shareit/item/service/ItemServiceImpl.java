@@ -117,7 +117,7 @@ public class ItemServiceImpl implements ItemService {
                         userId, itemId, BookingStatus.APPROVED, LocalDateTime.now()
                 );
         if (userBookingOfItem.isPresent()) {
-            return CommentMapper.toCommentResponseDto(commentRepository.save(comment));
+            return CommentMapper.toCommentFullDto(commentRepository.save(comment));
         } else {
             throw new NoUserBookingAvailableToComment(EXCEPTION_BOOKING_NOT_FOUND_INFO);
         }

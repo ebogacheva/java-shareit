@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 @Setter
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder(toBuilder = true)
 @EqualsAndHashCode
 public class CommentFullDto {
