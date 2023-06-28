@@ -103,7 +103,7 @@ public class BookingServiceImpl implements BookingService {
 
     private SearchCondition getFullSearchCondition(String conditionName, String requester) {
         final String conditionIncludingAllCase =
-                Objects.isNull(conditionName) || Strings.isEmpty(conditionName) ? "ALL" : conditionName;
+                Strings.isEmpty(conditionName) ? "ALL" : conditionName;
         final String fullCondition = (conditionIncludingAllCase + requester).toUpperCase();
         return Arrays.stream(SearchCondition.values())
                 .filter(c -> c.name().equals(fullCondition))
@@ -132,8 +132,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void composeConditionsMapIfEmpty() {
-        if (conditions.isEmpty()) {
-            conditions = Map.ofEntries(
+        if (conditions.isEmpty()) { conditions = Map.ofEntries(
                     Map.entry(ALL_FOR_BOOKER, bookingRepository::findAllUserBookings),
                     Map.entry(CURRENT_FOR_BOOKER, bookingRepository::findCurrentUserBookings),
                     Map.entry(PAST_FOR_BOOKER, bookingRepository::findPastUserBookings),

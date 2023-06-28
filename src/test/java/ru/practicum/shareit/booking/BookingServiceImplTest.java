@@ -90,6 +90,7 @@ class BookingServiceImplTest {
 
     @BeforeEach
     void beforeEach() {
+
         bookingInputDto = BookingInputDto.builder()
                 .id(null)
                 .start(START)
@@ -193,6 +194,18 @@ class BookingServiceImplTest {
     }
 
     @Test
+    void create_whenUserExistItemNotExist_thenThrowNotFound() {
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
+        when(itemRepository.findById(ITEM_ID)).thenReturn(Optional.empty());
+        assertThrows(ShareItElementNotFoundException.class,
+                () -> bookingService.create(bookingInputDto, USER_ID));
+
+        verify(bookingRepository, never()).save(any(Booking.class));
+        verify(userRepository, times(1)).findById(USER_ID);
+        verify(itemRepository, times(1)).findById(ITEM_ID);
+    }
+
+    @Test
     void create_whenUserExistItemNotAvailableAuthorIsNotOwner_thenThrowNotAvailable() {
         item.setAvailable(false);
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
@@ -285,6 +298,7 @@ class BookingServiceImplTest {
                 ));
         assertEquals(expectedMessage, actual.getMessage());
         verifyNoInteractions(bookingRepository);
+        verifyNoInteractions(conditions);
     }
 
     @Test
@@ -301,6 +315,8 @@ class BookingServiceImplTest {
                         PAGE_SIZE_1
                 ));
         assertThat(actual.getMessage(), containsString(incorrectConditionName));
+        verify(conditions, times(1)).isEmpty();
+        verify(conditions, never()).get(any(BookingServiceImpl.SearchCondition.class));
         verify(PAGE_OF_BOOKINGS_1, never()).getContent();
         verifyNoInteractions(bookingRepository);
     }
