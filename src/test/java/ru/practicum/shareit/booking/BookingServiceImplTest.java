@@ -27,11 +27,9 @@ import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 
+import java.lang.reflect.Executable;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiFunction;
 
 import static org.hamcrest.Matchers.*;
@@ -186,8 +184,7 @@ class BookingServiceImplTest {
     void create_whenUserNotExistItemAvailableAuthorIsNotOwner_thenThrowNotFound() {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
 
-        assertThrows(ShareItElementNotFoundException.class,
-                () -> bookingService.create(bookingInputDto, USER_ID));
+        assertThrows(ShareItElementNotFoundException.class, () -> bookingService.create(bookingInputDto, USER_ID));
 
         verify(bookingRepository, never()).save(any(Booking.class));
         verify(itemRepository, never()).findById(ITEM_ID);
@@ -197,8 +194,7 @@ class BookingServiceImplTest {
     void create_whenUserExistItemNotExist_thenThrowNotFound() {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
         when(itemRepository.findById(ITEM_ID)).thenReturn(Optional.empty());
-        assertThrows(ShareItElementNotFoundException.class,
-                () -> bookingService.create(bookingInputDto, USER_ID));
+        assertThrows(ShareItElementNotFoundException.class, () -> bookingService.create(bookingInputDto, USER_ID));
 
         verify(bookingRepository, never()).save(any(Booking.class));
         verify(userRepository, times(1)).findById(USER_ID);
@@ -211,8 +207,9 @@ class BookingServiceImplTest {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
         when(itemRepository.findById(bookingInputDto.getItemId())).thenReturn(Optional.of(item));
 
-        assertThrows(ItemIsUnavailableException.class,
-                () -> bookingService.create(bookingInputDto, USER_ID));
+        assertThrows(ItemIsUnavailableException.class, () -> {
+            bookingService.create(bookingInputDto, USER_ID);
+        });
 
         verify(userRepository, times(1)).findById(USER_ID);
         verify(bookingRepository, never()).save(any(Booking.class));
@@ -224,8 +221,7 @@ class BookingServiceImplTest {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
         when(itemRepository.findById(bookingInputDto.getItemId())).thenReturn(Optional.of(item));
 
-        assertThrows(ShareItElementNotFoundException.class,
-                () -> bookingService.create(bookingInputDto, USER_ID));
+        assertThrows(ShareItElementNotFoundException.class, () -> bookingService.create(bookingInputDto, USER_ID));
 
         verify(userRepository, times(1)).findById(USER_ID);
         verify(itemRepository, times(2)).findById(ITEM_ID);
@@ -263,8 +259,7 @@ class BookingServiceImplTest {
         String expectedMessage = "Booking not found.";
         when(bookingRepository.findById(BOOKING_ID_1)).thenReturn(Optional.empty());
 
-        Exception actual = assertThrows(ShareItElementNotFoundException.class,
-                () -> bookingService.getById(OWNER_ID, BOOKING_ID_1));
+        Exception actual = assertThrows(ShareItElementNotFoundException.class, () -> bookingService.getById(OWNER_ID, BOOKING_ID_1));
 
         assertEquals(expectedMessage, actual.getMessage());
         verify(bookingRepository, times(1)).findById(BOOKING_ID_1);
@@ -276,8 +271,7 @@ class BookingServiceImplTest {
         when(bookingRepository.findById(BOOKING_ID_1)).thenReturn(Optional.of(booking1));
         when(itemRepository.findById(ITEM_ID)).thenReturn(Optional.of(item));
 
-        assertThrows(ShareItElementNotFoundException.class,
-                () -> bookingService.getById(OTHER_ID, BOOKING_ID_1));
+        assertThrows(ShareItElementNotFoundException.class, () -> bookingService.getById(OTHER_ID, BOOKING_ID_1));
 
         verify(bookingRepository, times(2)).findById(BOOKING_ID_1);
         verify(itemRepository, times(1)).findById(ITEM_ID);
@@ -288,8 +282,7 @@ class BookingServiceImplTest {
         String expectedMessage = "User not found.";
         when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
 
-        Exception actual = assertThrows(ShareItElementNotFoundException.class,
-                () -> bookingService.findBookings(
+        Exception actual = assertThrows(ShareItElementNotFoundException.class, () -> bookingService.findBookings(
                         USER_ID,
                         CORRECT_CONDITION_NAME,
                         REQUESTER_OWNER,
@@ -306,14 +299,13 @@ class BookingServiceImplTest {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
         String incorrectConditionName = "WAITINGG";
 
-        Exception actual = assertThrows(UnsupportedStatusException.class,
-                () -> bookingService.findBookings(
-                        USER_ID,
-                        incorrectConditionName,
-                        REQUESTER_OWNER,
-                        START_ELEMENT_INDEX,
-                        PAGE_SIZE_1
-                ));
+        Exception actual = assertThrows(UnsupportedStatusException.class, () -> bookingService.findBookings(
+                USER_ID,
+                incorrectConditionName,
+                REQUESTER_OWNER,
+                START_ELEMENT_INDEX,
+                PAGE_SIZE_1
+        ));
         assertThat(actual.getMessage(), containsString(incorrectConditionName));
         verify(conditions, times(1)).isEmpty();
         verify(conditions, never()).get(any(BookingServiceImpl.SearchCondition.class));
@@ -337,9 +329,7 @@ class BookingServiceImplTest {
                 PAGE_SIZE_20
         );
 
-        assertTrue(expected.size() == actual.size()
-                && expected.containsAll(actual)
-                && actual.containsAll(expected));
+        assertEqualLists(expected, actual);
         verify(PAGE_OF_BOOKINGS_20, times(1)).getContent();
         verify(userRepository, times(1)).findById(OWNER_ID);
     }
@@ -359,9 +349,7 @@ class BookingServiceImplTest {
                 PAGE_SIZE_1
         );
 
-        assertTrue(expected.size() == actual.size()
-                && expected.containsAll(actual)
-                && actual.containsAll(expected));
+        assertEqualLists(expected, actual);
         verify(PAGE_OF_BOOKINGS_1, times(1)).getContent();
         verify(userRepository, times(1)).findById(OWNER_ID);
     }
@@ -392,8 +380,7 @@ class BookingServiceImplTest {
         when(bookingRepository.findById(anyLong())).thenReturn(Optional.empty());
         String messageExpected = "Booking not found.";
 
-        Exception exception = assertThrows(ShareItElementNotFoundException.class,
-                () -> bookingService.setStatus(OWNER_ID, BOOKING_ID_1, true));
+        Exception exception = assertThrows(ShareItElementNotFoundException.class, () -> bookingService.setStatus(OWNER_ID, BOOKING_ID_1, true));
 
         assertThat(exception.getMessage(), is(messageExpected));
         verify(bookingRepository, times(1)).findById(BOOKING_ID_1);
@@ -407,8 +394,7 @@ class BookingServiceImplTest {
         when(itemRepository.findById(ITEM_ID)).thenReturn(Optional.of(item));
         String messageExpected = "Item not found.";
 
-        Exception exception = assertThrows(ShareItElementNotFoundException.class,
-                () -> bookingService.setStatus(USER_ID, BOOKING_ID_1, true));
+        Exception exception = assertThrows(ShareItElementNotFoundException.class, () -> bookingService.setStatus(USER_ID, BOOKING_ID_1, true));
 
         assertThat(exception.getMessage(), is(messageExpected));
         verify(bookingRepository, times(1)).findById(BOOKING_ID_1);
@@ -423,8 +409,7 @@ class BookingServiceImplTest {
         when(itemRepository.findById(ITEM_ID)).thenReturn(Optional.of(item));
         String messageExpected = "Booking not found.";
 
-        Exception exception = assertThrows(BookingIsAlreadyApprovedException.class,
-                () -> bookingService.setStatus(OWNER_ID, BOOKING_ID_1, true));
+        Exception exception = assertThrows(BookingIsAlreadyApprovedException.class, () -> bookingService.setStatus(OWNER_ID, BOOKING_ID_1, true));
 
         assertThat(exception.getMessage(), is(messageExpected));
         verify(bookingRepository, times(1)).findById(BOOKING_ID_1);
@@ -451,5 +436,18 @@ class BookingServiceImplTest {
         verify(bookingRepository, times(1)).findById(BOOKING_ID_1);
         verify(itemRepository, times(1)).findById(ITEM_ID);
         verify(bookingRepository, times(1)).save(any());
+    }
+    private static <T> void assertEqualLists(List<T> expected, List<T> actual) {
+        assertListSize(expected, actual);
+        assertListsContainAll(expected, actual);
+    }
+
+    private static <T> void assertListSize(List<T> expected, List<T> actual) {
+        assertEquals(expected.size(), actual.size());
+    }
+
+    private static <T> void assertListsContainAll(List<T> expected, List<T> actual) {
+        assertTrue(expected.containsAll(actual));
+        assertTrue(actual.containsAll(expected));
     }
 }

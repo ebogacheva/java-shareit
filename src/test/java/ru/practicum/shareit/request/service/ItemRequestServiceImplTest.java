@@ -167,8 +167,9 @@ class ItemRequestServiceImplTest {
         String expectedMessage = "User not found.";
         when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
 
-        Exception actual = assertThrows(ShareItElementNotFoundException.class,
-                () -> itemRequestService.create(requestInputDto, USER_ID));
+        Exception actual = assertThrows(ShareItElementNotFoundException.class, () -> {
+            itemRequestService.create(requestInputDto, USER_ID);
+        });
 
         assertEquals(expectedMessage, actual.getMessage());
         verify(userRepository, times(1)).findById(USER_ID);
@@ -199,8 +200,9 @@ class ItemRequestServiceImplTest {
         String expectedMessage = "User not found.";
         when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
 
-        Exception actual = assertThrows(ShareItElementNotFoundException.class,
-                () -> itemRequestService.findAll(USER_ID));
+        Exception actual = assertThrows(ShareItElementNotFoundException.class, () -> {
+            itemRequestService.findAll(USER_ID);
+        });
 
         assertEquals(expectedMessage, actual.getMessage());
         verify(userRepository, times(1)).findById(USER_ID);
@@ -215,9 +217,7 @@ class ItemRequestServiceImplTest {
         List<RequestWithItemsDto> expected = List.of(requestWithItemsDto_2);
         List<RequestWithItemsDto> actual = itemRequestService.findAll(USER_ID, 0, 1);
 
-        assertTrue(expected.size() == actual.size()
-                && expected.containsAll(actual)
-                && actual.containsAll(expected));
+        assertEqualLists(expected, actual);
         verify(PAGE_OF_REQUESTS_1, times(1)).getContent();
         verify(userRepository, times(1)).findById(USER_ID);
         verify(requestRepository, times(1)).findAll(USER_ID, PAGEABLE_1);
@@ -243,8 +243,9 @@ class ItemRequestServiceImplTest {
         String expectedMessage = "User not found.";
         when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
 
-        Exception actual = assertThrows(ShareItElementNotFoundException.class,
-                () -> itemRequestService.getById(USER_ID, REQUEST_ID_1));
+        Exception actual = assertThrows(ShareItElementNotFoundException.class, () -> {
+            itemRequestService.getById(USER_ID, REQUEST_ID_1);
+        });
 
         assertEquals(expectedMessage, actual.getMessage());
         verify(userRepository, times(1)).findById(USER_ID);
@@ -258,13 +259,28 @@ class ItemRequestServiceImplTest {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
         when(requestRepository.findById(REQUEST_ID_1)).thenReturn(Optional.empty());
 
-        Exception actual = assertThrows(ShareItElementNotFoundException.class,
-                () -> itemRequestService.getById(USER_ID, REQUEST_ID_1));
+        Exception actual = assertThrows(ShareItElementNotFoundException.class, () -> {
+            itemRequestService.getById(USER_ID, REQUEST_ID_1);
+        });
 
         assertEquals(expectedMessage, actual.getMessage());
         verify(userRepository, times(1)).findById(USER_ID);
         verify(requestRepository, times(1)).findById(REQUEST_ID_1);
         verifyNoInteractions(itemRepository);
+    }
+
+    private static <T> void assertEqualLists(List<T> expected, List<T> actual) {
+        assertListSize(expected, actual);
+        assertListsContainAll(expected, actual);
+    }
+
+    private static <T> void assertListSize(List<T> expected, List<T> actual) {
+        assertEquals(expected.size(), actual.size());
+    }
+
+    private static <T> void assertListsContainAll(List<T> expected, List<T> actual) {
+        assertTrue(expected.containsAll(actual));
+        assertTrue(actual.containsAll(expected));
     }
 }
 

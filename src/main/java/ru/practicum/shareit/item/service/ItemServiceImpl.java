@@ -126,11 +126,12 @@ public class ItemServiceImpl implements ItemService {
     private ItemFullDto completeItemDtoWithBookingsInfo(ItemFullDto itemFullDto) {
         Long itemId = itemFullDto.getId();
         LocalDateTime now = LocalDateTime.now();
-        Sort sort = Sort.by("start").descending();
+        Sort sortLast = Sort.by("start").descending();
+        Sort sortNext = Sort.by("start").ascending();
         Optional<Booking> lastBooking = bookingRepository
-                .findFirst1BookingByItemIdAndStatusAndStartBefore(itemId, BookingStatus.APPROVED, now, sort);
+                .findFirst1BookingByItemIdAndStatusAndStartBefore(itemId, BookingStatus.APPROVED, now, sortLast);
         Optional<Booking> nextBooking = bookingRepository
-                .findFirst1BookingByItemIdAndStatusAndStartAfter(itemId, BookingStatus.APPROVED, now, sort);
+                .findFirst1BookingByItemIdAndStatusAndStartAfter(itemId, BookingStatus.APPROVED, now, sortNext);
         lastBooking.ifPresent(booking -> itemFullDto.setLastBooking(BookingMapper.toBookingInItemDto(booking)));
         nextBooking.ifPresent(booking -> itemFullDto.setNextBooking(BookingMapper.toBookingInItemDto(booking)));
         return itemFullDto;

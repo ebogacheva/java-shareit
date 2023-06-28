@@ -79,8 +79,9 @@ class UserServiceImplTest {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
         String expectedMessage = "User not found.";
 
-        Exception actual = assertThrows(ShareItElementNotFoundException.class,
-                () -> userService.getById(USER_ID));
+        Exception actual = assertThrows(ShareItElementNotFoundException.class, () -> {
+            userService.getById(USER_ID);
+        });
         assertEquals(expectedMessage, actual.getMessage());
         verify(userRepository, times(1)).findById(USER_ID);
     }
@@ -92,9 +93,7 @@ class UserServiceImplTest {
 
         List<UserDto> actual = userService.findAll();
 
-        assertTrue(expected.size() == actual.size()
-                && expected.containsAll(actual)
-                && actual.containsAll(expected));
+        assertEqualLists(expected, actual);
         verify(userRepository, times(1)).findAll();
     }
 
@@ -120,8 +119,9 @@ class UserServiceImplTest {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
         String expectedMessage = "User not found.";
 
-        Exception actual = assertThrows(ShareItElementNotFoundException.class,
-                () -> userService.getById(USER_ID));
+        Exception actual = assertThrows(ShareItElementNotFoundException.class, () -> {
+            userService.getById(USER_ID);
+        });
         assertEquals(expectedMessage, actual.getMessage());
         verify(userRepository, times(1)).findById(USER_ID);
         verify(userRepository, never()).save(ArgumentMatchers.any(User.class));
@@ -131,5 +131,19 @@ class UserServiceImplTest {
     void delete() {
         userService.delete(USER_ID);
         verify(userRepository, times(1)).deleteById(USER_ID);
+    }
+
+    private static <T> void assertEqualLists(List<T> expected, List<T> actual) {
+        assertListSize(expected, actual);
+        assertListsContainAll(expected, actual);
+    }
+
+    private static <T> void assertListSize(List<T> expected, List<T> actual) {
+        assertEquals(expected.size(), actual.size());
+    }
+
+    private static <T> void assertListsContainAll(List<T> expected, List<T> actual) {
+        assertTrue(expected.containsAll(actual));
+        assertTrue(actual.containsAll(expected));
     }
 }

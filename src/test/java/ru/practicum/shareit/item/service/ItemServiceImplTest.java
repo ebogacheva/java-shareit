@@ -1,6 +1,6 @@
 package ru.practicum.shareit.item.service;
 
-import org.apache.logging.log4j.util.Strings;
+import org.assertj.core.util.Strings;
 import org.hibernate.result.NoMoreReturnsException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -259,8 +259,7 @@ class ItemServiceImplTest {
         String messageExpected = "User not found.";
         when(userRepository.findById(OWNER_ID)).thenReturn(Optional.empty());
 
-        Exception exception = assertThrows(ShareItElementNotFoundException.class,
-                () -> itemService.create(itemInputDto, OWNER_ID));
+        Exception exception = assertThrows(ShareItElementNotFoundException.class, () -> itemService.create(itemInputDto, OWNER_ID));
 
         assertThat(exception.getMessage(), is(messageExpected));
         verify(userRepository, times(1)).findById(OWNER_ID);
@@ -274,8 +273,7 @@ class ItemServiceImplTest {
         when(userRepository.findById(OWNER_ID)).thenReturn(Optional.of(owner));
         when(requestRepository.findById(REQUEST_ID)).thenReturn(Optional.empty());
 
-        Exception exception = assertThrows(ShareItElementNotFoundException.class,
-                () -> itemService.create(itemInputDto, OWNER_ID));
+        Exception exception = assertThrows(ShareItElementNotFoundException.class, () -> itemService.create(itemInputDto, OWNER_ID));
 
         assertThat(exception.getMessage(), is(messageExpected));
         verify(userRepository, times(1)).findById(OWNER_ID);
@@ -351,8 +349,7 @@ class ItemServiceImplTest {
         String expectedMessage = "Item not found.";
         when(itemRepository.findById(ITEM_ID)).thenReturn(Optional.empty());
 
-        Exception actual = assertThrows(ShareItElementNotFoundException.class,
-                () -> itemService.getById(USER_ID, ITEM_ID));
+        Exception actual = assertThrows(ShareItElementNotFoundException.class, () -> itemService.getById(USER_ID, ITEM_ID));
 
         assertEquals(expectedMessage, actual.getMessage());
         verifyNoInteractions(commentRepository);
@@ -379,9 +376,7 @@ class ItemServiceImplTest {
         List<ItemFullDto> expected = List.of(itemFullDtoForOwner);
         List<ItemFullDto> actual = itemService.findAll(OWNER_ID, START_ELEMENT_INDEX, PAGE_SIZE_1);
 
-        assertTrue(expected.size() == actual.size()
-                && expected.containsAll(actual)
-                && actual.containsAll(expected));
+        assertEqualLists(expected, actual);
         verify(itemRepository, times(1)).findAllByOwnerIdOrderByIdAsc(OWNER_ID, PAGEABLE_1);
     }
 
@@ -392,9 +387,7 @@ class ItemServiceImplTest {
         List<ItemFullDto> expected = List.of();
         List<ItemFullDto> actual = itemService.findAll(OWNER_ID, START_ELEMENT_INDEX, PAGE_SIZE_1);
 
-        assertTrue(actual.size() == 0
-                && expected.containsAll(actual)
-                && actual.containsAll(expected));
+        assertEqualLists(expected, actual);
         verify(itemRepository, times(1)).findAllByOwnerIdOrderByIdAsc(OWNER_ID, PAGEABLE_1);
         verifyNoInteractions(bookingRepository);
         verifyNoInteractions(commentRepository);
@@ -432,8 +425,7 @@ class ItemServiceImplTest {
         when(itemRepository.findById(ITEM_ID)).thenReturn(Optional.of(item));
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
 
-        Exception actual = assertThrows(AccessForbiddenException.class,
-                () -> itemService.update(itemInputDto, USER_ID, ITEM_ID));
+        Exception actual = assertThrows(AccessForbiddenException.class, () -> itemService.update(itemInputDto, USER_ID, ITEM_ID));
 
         assertThat(expectedMessage, samePropertyValuesAs(actual.getMessage()));
         verify(itemRepository, times(1)).findById(ITEM_ID);
@@ -448,8 +440,7 @@ class ItemServiceImplTest {
         String expectedMessage = "Item not found.";
         when(itemRepository.findById(ITEM_ID)).thenReturn(Optional.empty());
 
-        Exception actual = assertThrows(ShareItElementNotFoundException.class,
-                () -> itemService.update(itemInputDto, USER_ID, ITEM_ID));
+        Exception actual = assertThrows(ShareItElementNotFoundException.class, () -> itemService.update(itemInputDto, USER_ID, ITEM_ID));
 
         assertThat(expectedMessage, samePropertyValuesAs(actual.getMessage()));
         verify(itemRepository, times(1)).findById(ITEM_ID);
@@ -465,8 +456,7 @@ class ItemServiceImplTest {
         when(itemRepository.findById(ITEM_ID)).thenReturn(Optional.of(item));
         when(userRepository.findById(OTHER_ID)).thenReturn(Optional.empty());
 
-        Exception actual = assertThrows(ShareItElementNotFoundException.class,
-                () -> itemService.update(itemInputDto, OTHER_ID, ITEM_ID));
+        Exception actual = assertThrows(ShareItElementNotFoundException.class, () -> itemService.update(itemInputDto, OTHER_ID, ITEM_ID));
 
         assertEquals(expectedMessage, actual.getMessage());
         verify(itemRepository, times(1)).findById(ITEM_ID);
@@ -482,9 +472,7 @@ class ItemServiceImplTest {
         List<ItemOutDto> actual = itemService.search(searchBy, START_ELEMENT_INDEX, PAGE_SIZE_1);
         List<ItemOutDto> expected = List.of(itemOutDto);
 
-        assertTrue(actual.size() == expected.size()
-                && expected.containsAll(actual)
-                && actual.containsAll(expected));
+        assertEqualLists(expected, actual);
         verify(itemRepository, times(1)).search(searchBy, PAGEABLE_1);
     }
 
@@ -496,22 +484,18 @@ class ItemServiceImplTest {
         List<ItemOutDto> actual = itemService.search(searchBy, START_ELEMENT_INDEX, PAGE_SIZE_1);
         List<ItemOutDto> expected = List.of();
 
-        assertTrue(actual.size() == 0
-                && expected.containsAll(actual)
-                && actual.containsAll(expected));
+        assertEqualLists(expected, actual);
         verify(itemRepository, times(1)).search(searchBy, PAGEABLE_1);
     }
 
     @Test
     void search_whenSearchIsBlank_thenReturnEmptyList() {
-        String searchBy = Strings.EMPTY;
+        String searchBy = "";
 
         List<ItemOutDto> actual = itemService.search(searchBy, START_ELEMENT_INDEX, PAGE_SIZE_1);
         List<ItemOutDto> expected = List.of();
 
-        assertTrue(actual.size() == 0
-                && expected.containsAll(actual)
-                && actual.containsAll(expected));
+        assertEqualLists(expected, actual);
         verifyNoInteractions(itemRepository);
     }
 
@@ -547,8 +531,7 @@ class ItemServiceImplTest {
     void addComment_whenItemNotExist_thenThrowNotFound() {
         String expectedMessage = "Item not found.";
         when(itemRepository.findById(ITEM_ID)).thenReturn(Optional.empty());
-        Exception actual = assertThrows(ShareItElementNotFoundException.class,
-                () -> itemService.addComment(commentInputDto, ITEM_ID, USER_ID));
+        Exception actual = assertThrows(ShareItElementNotFoundException.class, () -> itemService.addComment(commentInputDto, ITEM_ID, USER_ID));
 
         assertEquals(expectedMessage, actual.getMessage());
         verify(itemRepository, times(1)).findById(ITEM_ID);
@@ -575,8 +558,7 @@ class ItemServiceImplTest {
                 ArgumentMatchers.any(LocalDateTime.class)
         )).thenReturn(Optional.empty());
 
-        Exception actual = assertThrows(NoUserBookingAvailableToComment.class,
-                () -> itemService.addComment(commentInputDto, ITEM_ID, USER_ID));
+        Exception actual = assertThrows(NoUserBookingAvailableToComment.class, () -> itemService.addComment(commentInputDto, ITEM_ID, USER_ID));
 
         assertEquals(expectedMessage, actual.getMessage());
         verify(itemRepository, times(1)).findById(ITEM_ID);
@@ -589,5 +571,19 @@ class ItemServiceImplTest {
                         ArgumentMatchers.any(LocalDateTime.class)
                 );
         verify(commentRepository, never()).save(ArgumentMatchers.any());
+    }
+
+    private static <T> void assertEqualLists(List<T> expected, List<T> actual) {
+        assertListSize(expected, actual);
+        assertListsContainAll(expected, actual);
+    }
+
+    private static <T> void assertListSize(List<T> expected, List<T> actual) {
+        assertEquals(expected.size(), actual.size());
+    }
+
+    private static <T> void assertListsContainAll(List<T> expected, List<T> actual) {
+        assertTrue(expected.containsAll(actual));
+        assertTrue(actual.containsAll(expected));
     }
 }

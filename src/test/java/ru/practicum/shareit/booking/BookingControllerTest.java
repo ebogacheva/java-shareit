@@ -256,9 +256,7 @@ class BookingControllerTest {
         List<BookingFullDto> actual = objectMapper.readValue(actualString, new TypeReference<>() {});
         List<BookingFullDto> expected = List.of(bookingFullDto1);
 
-        assertTrue(expected.size() == actual.size()
-                && expected.containsAll(actual)
-                && actual.containsAll(expected));
+        assertEqualLists(expected, actual);
     }
 
     @SneakyThrows
@@ -279,9 +277,7 @@ class BookingControllerTest {
         List<BookingFullDto> actual = objectMapper.readValue(actualString, new TypeReference<>() {});
         List<BookingFullDto> expected = List.of(bookingFullDto1);
 
-        assertTrue(expected.size() == actual.size()
-                && expected.containsAll(actual)
-                && actual.containsAll(expected));
+        assertEqualLists(expected, actual);
     }
 
     @SneakyThrows
@@ -303,8 +299,20 @@ class BookingControllerTest {
         List<BookingFullDto> actual = objectMapper.readValue(actualString, new TypeReference<>() {});
         List<BookingFullDto> expected = List.of(bookingFullDto1);
 
-        assertTrue(expected.size() == actual.size()
-                && expected.containsAll(actual)
-                && actual.containsAll(expected));
+        assertEqualLists(expected, actual);
+    }
+
+    private static <T> void assertEqualLists(List<T> expected, List<T> actual) {
+        assertListSize(expected, actual);
+        assertListsContainAll(expected, actual);
+    }
+
+    private static <T> void assertListSize(List<T> expected, List<T> actual) {
+        assertEquals(expected.size(), actual.size());
+    }
+
+    private static <T> void assertListsContainAll(List<T> expected, List<T> actual) {
+        assertTrue(expected.containsAll(actual));
+        assertTrue(actual.containsAll(expected));
     }
 }
