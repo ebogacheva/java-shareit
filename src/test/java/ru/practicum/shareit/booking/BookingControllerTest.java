@@ -157,6 +157,123 @@ class BookingControllerTest {
 
     @SneakyThrows
     @Test
+    void create_whenInvalidInputBookingDtoStartInPast_thenBadRequest() {
+
+        LocalDateTime pastStart = LocalDateTime.now().minusWeeks(1);
+        bookingInputDto.setStart(pastStart);
+
+        mockMvc.perform(post("/bookings")
+                        .header(X_SHARER_USER_ID, USER_ID)
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(bookingInputDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result ->
+                        assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException))
+                .andExpect(result ->
+                        assertThat(result.getResponse().getContentAsString(),
+                                containsString("Invalid booking's start-end info.")));
+    }
+
+    @SneakyThrows
+    @Test
+    void create_whenInvalidInputBookingDtoStartEndInPast_thenBadRequest() {
+
+        LocalDateTime pastEnd = LocalDateTime.now().minusWeeks(1);
+        LocalDateTime pastStart= LocalDateTime.now().minusWeeks(2);
+        bookingInputDto.setStart(pastStart);
+        bookingInputDto.setEnd(pastEnd);
+
+        mockMvc.perform(post("/bookings")
+                        .header(X_SHARER_USER_ID, USER_ID)
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(bookingInputDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result ->
+                        assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException))
+                .andExpect(result ->
+                        assertThat(result.getResponse().getContentAsString(),
+                                containsString("Invalid booking's start-end info.")));
+    }
+
+    @SneakyThrows
+    @Test
+    void create_whenInvalidInputBookingDtoEndNull_thenBadRequest() {
+
+        bookingInputDto.setEnd(null);
+
+        mockMvc.perform(post("/bookings")
+                        .header(X_SHARER_USER_ID, USER_ID)
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(bookingInputDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result ->
+                        assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException))
+                .andExpect(result ->
+                        assertThat(result.getResponse().getContentAsString(),
+                                containsString("Invalid booking's start-end info.")));
+    }
+
+    @SneakyThrows
+    @Test
+    void create_whenInvalidInputBookingDtoStartNull_thenBadRequest() {
+
+        bookingInputDto.setStart(null);
+
+        mockMvc.perform(post("/bookings")
+                        .header(X_SHARER_USER_ID, USER_ID)
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(bookingInputDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result ->
+                        assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException))
+                .andExpect(result ->
+                        assertThat(result.getResponse().getContentAsString(),
+                                containsString("Invalid booking's start-end info.")));
+    }
+
+    @SneakyThrows
+    @Test
+    void create_whenInvalidInputBookingDtoPastEndStartStartBeforeEnd_thenBadRequest() {
+
+        LocalDateTime pastEnd = LocalDateTime.now().minusWeeks(1);
+        LocalDateTime pastStart = LocalDateTime.now().minusWeeks(2);
+        bookingInputDto.setStart(pastEnd);
+        bookingInputDto.setEnd(pastStart);
+
+        mockMvc.perform(post("/bookings")
+                        .header(X_SHARER_USER_ID, USER_ID)
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(bookingInputDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result ->
+                        assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException))
+                .andExpect(result ->
+                        assertThat(result.getResponse().getContentAsString(),
+                                containsString("Invalid booking's start-end info.")));
+    }
+
+    @SneakyThrows
+    @Test
+    void create_whenInvalidInputBookingDtoPastEnd_thenBadRequest() {
+
+        LocalDateTime pastEnd = LocalDateTime.now().minusWeeks(2);
+        bookingInputDto.setStart(pastEnd);
+
+        mockMvc.perform(post("/bookings")
+                        .header(X_SHARER_USER_ID, USER_ID)
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(bookingInputDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result ->
+                        assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException))
+                .andExpect(result ->
+                        assertThat(result.getResponse().getContentAsString(),
+                                containsString("Invalid booking's start-end info.")));
+    }
+
+
+    @SneakyThrows
+    @Test
     void update_whenInputValid_thenReturnOkStatusAndBookingFullDto() {
         bookingFullDto1.setStatus(BookingStatus.APPROVED);
         when(bookingService.setStatus(USER_ID, BOOKING_ID_1, true)).thenReturn(bookingFullDto1);

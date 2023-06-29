@@ -394,11 +394,13 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void update_whenUserIsOwnerItemExist_thenReturnUpdated() {
+    void update_whenUserIsOwnerItemExistUpdateDescription_thenReturnUpdated() {
         String changed = "updated description";
         itemInputDto.setDescription(changed);
         itemOutDto.setDescription(changed);
         item.setDescription(changed);
+        itemInputDto.setAvailable(null);
+        itemInputDto.setName(null);
         when(itemRepository.findById(ITEM_ID)).thenReturn(Optional.of(item));
         when(userRepository.findById(OWNER_ID)).thenReturn(Optional.of(owner));
         when(itemRepository.save(itemCaptor.capture())).thenReturn(item);
@@ -414,6 +416,55 @@ class ItemServiceImplTest {
         Item shouldBeUpdatedWithChangedDescription = itemCaptor.getValue();
         assertEquals(item, shouldBeUpdatedWithChangedDescription);
     }
+
+    @Test
+    void update_whenUserIsOwnerItemExistUpdateName_thenReturnUpdated() {
+        String changed = "updated name";
+        itemInputDto.setName(changed);
+        itemOutDto.setName(changed);
+        item.setName(changed);
+        itemInputDto.setAvailable(null);
+        itemInputDto.setDescription(null);
+        when(itemRepository.findById(ITEM_ID)).thenReturn(Optional.of(item));
+        when(userRepository.findById(OWNER_ID)).thenReturn(Optional.of(owner));
+        when(itemRepository.save(itemCaptor.capture())).thenReturn(item);
+
+        ItemOutDto expected = itemOutDto;
+        ItemOutDto actual = itemService.update(itemInputDto, OWNER_ID, ITEM_ID);
+
+        assertThat(expected, samePropertyValuesAs(actual));
+        assertThat(actual).isEqualTo(expected);
+        verify(itemRepository, times(1)).findById(ITEM_ID);
+        verify(userRepository, times(1)).findById(OWNER_ID);
+        verify(itemRepository, times(1)).save(item);
+        Item shouldBeUpdatedWithChangedName= itemCaptor.getValue();
+        assertEquals(item, shouldBeUpdatedWithChangedName);
+    }
+
+    @Test
+    void update_whenUserIsOwnerItemExistUpdateAvailable_thenReturnUpdated() {
+        Boolean changed = false;
+        itemInputDto.setAvailable(changed);
+        itemOutDto.setAvailable(changed);
+        item.setAvailable(changed);
+        itemInputDto.setName(null);
+        itemInputDto.setDescription(null);
+        when(itemRepository.findById(ITEM_ID)).thenReturn(Optional.of(item));
+        when(userRepository.findById(OWNER_ID)).thenReturn(Optional.of(owner));
+        when(itemRepository.save(itemCaptor.capture())).thenReturn(item);
+
+        ItemOutDto expected = itemOutDto;
+        ItemOutDto actual = itemService.update(itemInputDto, OWNER_ID, ITEM_ID);
+
+        assertThat(expected, samePropertyValuesAs(actual));
+        assertThat(actual).isEqualTo(expected);
+        verify(itemRepository, times(1)).findById(ITEM_ID);
+        verify(userRepository, times(1)).findById(OWNER_ID);
+        verify(itemRepository, times(1)).save(item);
+        Item shouldBeUpdatedWithChangedAvailable = itemCaptor.getValue();
+        assertEquals(item, shouldBeUpdatedWithChangedAvailable);
+    }
+
 
     @Test
     void update_whenUserIsNotOwnerItemExist_thenThrowAccessForbidden() {

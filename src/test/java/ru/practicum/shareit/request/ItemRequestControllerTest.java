@@ -186,19 +186,45 @@ class ItemRequestControllerTest {
     }
 
     @Test
-    void getById() throws Exception {
+    void getById_whenRequestExist_thenReturnOkAndRequestWithItemsDto() throws Exception {
         when(itemRequestService.getById(anyLong(), anyLong())).thenReturn(requestWithItemsDto);
 
         String actual = mockMvc.perform(get("/requests/{requestId}", REQUEST_ID)
-                        .header(X_SHARER_USER_ID, USER_ID)
-                        .param("from", "0")
-                        .param("size","1"))
+                        .header(X_SHARER_USER_ID, USER_ID))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-        String expected = objectMapper.writeValueAsString(List.of(requestWithItemsDto));
+        String expected = objectMapper.writeValueAsString(requestWithItemsDto);
 
         assertEquals(expected, actual);
+    }
+
+    @Test
+    void getById_whenUserNotExist_thenReturnNotFound() throws Exception {
+        when(itemRequestService.getById(anyLong(), anyLong())).thenThrow(new ShareItElementNotFoundException("User not found."));
+
+        mockMvc.perform(get("/requests/{requestId}", REQUEST_ID)
+                        .header(X_SHARER_USER_ID, USER_ID))
+                .andExpect(status().isNotFound())
+                .andExpect(result ->
+                        assertTrue(result.getResolvedException() instanceof ShareItElementNotFoundException))
+                .andExpect(result ->
+                        assertTrue(Objects.requireNonNull(
+                                result.getResolvedException()).getMessage().contains("User not found")));
+    }
+
+    @Test
+    void getById_whenRequestNotExist_thenReturnNotFound() throws Exception {
+        when(itemRequestService.getById(anyLong(), anyLong())).thenThrow(new ShareItElementNotFoundException("Request not found."));
+
+        mockMvc.perform(get("/requests/{requestId}", REQUEST_ID)
+                        .header(X_SHARER_USER_ID, USER_ID))
+                .andExpect(status().isNotFound())
+                .andExpect(result ->
+                        assertTrue(result.getResolvedException() instanceof ShareItElementNotFoundException))
+                .andExpect(result ->
+                        assertTrue(Objects.requireNonNull(
+                                result.getResolvedException()).getMessage().contains("Request not found.")));
     }
 }
