@@ -1,8 +1,6 @@
 package ru.practicum.shareit.user;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +15,6 @@ import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.ConstraintViolationException;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;

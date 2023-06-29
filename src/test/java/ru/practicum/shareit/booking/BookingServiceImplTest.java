@@ -26,8 +26,6 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
-
-import java.lang.reflect.Executable;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.BiFunction;
@@ -437,6 +435,7 @@ class BookingServiceImplTest {
         verify(itemRepository, times(1)).findById(ITEM_ID);
         verify(bookingRepository, times(1)).save(any());
     }
+
     private static <T> void assertEqualLists(List<T> expected, List<T> actual) {
         assertListSize(expected, actual);
         assertListsContainAll(expected, actual);

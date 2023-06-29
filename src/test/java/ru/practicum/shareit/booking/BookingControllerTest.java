@@ -42,7 +42,6 @@ class BookingControllerTest {
     private static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
     private static final Long INVALID_BOOKING_ID = -10L;
 
-
     @Autowired
     MockMvc mockMvc;
 
@@ -59,7 +58,6 @@ class BookingControllerTest {
     private Item item;
     private BookingFullDto bookingFullDto1;
     private BookingFullDto bookingFullDto2;
-
 
     @BeforeEach
     void beforeEach() {
@@ -179,7 +177,7 @@ class BookingControllerTest {
     void create_whenInvalidInputBookingDtoStartEndInPast_thenBadRequest() {
 
         LocalDateTime pastEnd = LocalDateTime.now().minusWeeks(1);
-        LocalDateTime pastStart= LocalDateTime.now().minusWeeks(2);
+        LocalDateTime pastStart = LocalDateTime.now().minusWeeks(2);
         bookingInputDto.setStart(pastStart);
         bookingInputDto.setEnd(pastEnd);
 

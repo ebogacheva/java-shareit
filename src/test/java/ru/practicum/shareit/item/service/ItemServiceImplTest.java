@@ -1,7 +1,5 @@
 package ru.practicum.shareit.item.service;
 
-import org.assertj.core.util.Strings;
-import org.hibernate.result.NoMoreReturnsException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,8 +24,6 @@ import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -437,7 +433,7 @@ class ItemServiceImplTest {
         verify(itemRepository, times(1)).findById(ITEM_ID);
         verify(userRepository, times(1)).findById(OWNER_ID);
         verify(itemRepository, times(1)).save(item);
-        Item shouldBeUpdatedWithChangedName= itemCaptor.getValue();
+        Item shouldBeUpdatedWithChangedName = itemCaptor.getValue();
         assertEquals(item, shouldBeUpdatedWithChangedName);
     }
 

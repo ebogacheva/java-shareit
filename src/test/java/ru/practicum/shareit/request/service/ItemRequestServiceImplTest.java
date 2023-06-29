@@ -53,8 +53,8 @@ class ItemRequestServiceImplTest {
     private ItemRequest request1;
     private ItemRequest request2;
     private ItemRequestInputDto requestInputDto;
-    private RequestWithItemsDto requestWithItemsDto_1;
-    private RequestWithItemsDto requestWithItemsDto_2;
+    private RequestWithItemsDto requestWithItemsDto1;
+    private RequestWithItemsDto requestWithItemsDto2;
     private RequestWithItemsDto requestWithoutItemsDto;
     private ItemInRequestDto itemInRequestDto;
 
@@ -122,7 +122,7 @@ class ItemRequestServiceImplTest {
 
         requestInputDto = new ItemRequestInputDto("requestDescription");
 
-        requestWithItemsDto_1 = RequestWithItemsDto.builder()
+        requestWithItemsDto1 = RequestWithItemsDto.builder()
                 .id(REQUEST_ID_1)
                 .description("requestDescription")
                 .requester(USER_ID)
@@ -130,7 +130,7 @@ class ItemRequestServiceImplTest {
                 .items(List.of(itemInRequestDto))
                 .build();
 
-        requestWithItemsDto_2 = RequestWithItemsDto.builder()
+        requestWithItemsDto2 = RequestWithItemsDto.builder()
                 .id(REQUEST_ID_2)
                 .description("requestDescription_2")
                 .requester(USER_ID)
@@ -183,7 +183,7 @@ class ItemRequestServiceImplTest {
         when(itemRepository.findAllByRequestId(REQUEST_ID_1)).thenReturn(List.of(item));
         when(itemRepository.findAllByRequestId(REQUEST_ID_2)).thenReturn(List.of());
 
-        List<RequestWithItemsDto> expected = List.of(requestWithItemsDto_2, requestWithItemsDto_1);
+        List<RequestWithItemsDto> expected = List.of(requestWithItemsDto2, requestWithItemsDto1);
         List<RequestWithItemsDto> actual = itemRequestService.findAll(USER_ID);
 
         assertEquals(expected.size(), actual.size());
@@ -214,7 +214,7 @@ class ItemRequestServiceImplTest {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
         when(requestRepository.findAll(USER_ID, PAGEABLE_1)).thenReturn(PAGE_OF_REQUESTS_1);
 
-        List<RequestWithItemsDto> expected = List.of(requestWithItemsDto_2);
+        List<RequestWithItemsDto> expected = List.of(requestWithItemsDto2);
         List<RequestWithItemsDto> actual = itemRequestService.findAll(USER_ID, 0, 1);
 
         assertEqualLists(expected, actual);
@@ -229,7 +229,7 @@ class ItemRequestServiceImplTest {
         when(requestRepository.findById(REQUEST_ID_1)).thenReturn(Optional.of(request1));
         when(itemRepository.findAllByRequestId(REQUEST_ID_1)).thenReturn(List.of(item));
 
-        RequestWithItemsDto expected = requestWithItemsDto_1;
+        RequestWithItemsDto expected = requestWithItemsDto1;
         RequestWithItemsDto actual = itemRequestService.getById(USER_ID, REQUEST_ID_1);
 
         assertThat(actual, samePropertyValuesAs(expected));

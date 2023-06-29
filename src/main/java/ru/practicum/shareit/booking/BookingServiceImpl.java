@@ -132,7 +132,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void composeConditionsMapIfEmpty() {
-        if (conditions.isEmpty()) { conditions = Map.ofEntries(
+        if (conditions.isEmpty()) {
+            conditions = Map.ofEntries(
                     Map.entry(ALL_FOR_BOOKER, bookingRepository::findAllUserBookings),
                     Map.entry(CURRENT_FOR_BOOKER, bookingRepository::findCurrentUserBookings),
                     Map.entry(PAST_FOR_BOOKER, bookingRepository::findPastUserBookings),
