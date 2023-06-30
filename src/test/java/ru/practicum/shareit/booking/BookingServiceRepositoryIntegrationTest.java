@@ -103,7 +103,7 @@ class BookingServiceRepositoryIntegrationTest {
         // then booking is saved in db
         Optional<Booking> actualBooking = bookingRepository.findById(bookingId);
         BookingFullDto actualDto = null;
-        if(actualBooking.isPresent()) {
+        if (actualBooking.isPresent()) {
             actualDto = BookingMapper.toBookingFullDto(actualBooking.get());
         }
 
@@ -143,7 +143,7 @@ class BookingServiceRepositoryIntegrationTest {
         bookingId = expectedDto.getId();
         Optional<Booking> actualBooking = bookingRepository.findById(bookingId);
         BookingFullDto actualDto = null;
-        if(actualBooking.isPresent()) {
+        if (actualBooking.isPresent()) {
             actualDto = BookingMapper.toBookingFullDto(actualBooking.get());
         }
 
@@ -160,7 +160,7 @@ class BookingServiceRepositoryIntegrationTest {
 
         //then optional is empty
         BookingFullDto actualDto = null;
-        if(actualBooking.isPresent()) {
+        if (actualBooking.isPresent()) {
             actualDto = BookingMapper.toBookingFullDto(actualBooking.get());
         }
 
@@ -223,7 +223,11 @@ class BookingServiceRepositoryIntegrationTest {
         assertThrows(BookingIsAlreadyApprovedException.class,
                 () -> bookingService.setStatus(userId, bookingId1, true));
 
-        //then no WAITING bookings:
+        //trying to set status REJECTED - got BookingIsAlreadyApprovedException
+        assertThrows(BookingIsAlreadyApprovedException.class,
+                () -> bookingService.setStatus(userId, bookingId1, false));
+
+        //then no WAITING bookings
         List<BookingFullDto> expected = List.of();
         List<BookingFullDto> actual = BookingMapper.toBookingDtoList(
                 bookingRepository.findUserBookingsWaiting(userId, PAGEABLE_20)
