@@ -16,7 +16,7 @@ import ru.practicum.shareit.request.dto.ItemRequestInputDto;
 import ru.practicum.shareit.request.dto.RequestWithItemsDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
-import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
@@ -48,7 +48,6 @@ class ItemRequestServiceImplTest {
     private static final int TOTAL_REQUEST_NUMBER = 2;
 
     private User user;
-    private User owner;
     private Item item;
     private ItemRequest request1;
     private ItemRequest request2;
@@ -56,7 +55,6 @@ class ItemRequestServiceImplTest {
     private RequestWithItemsDto requestWithItemsDto1;
     private RequestWithItemsDto requestWithItemsDto2;
     private RequestWithItemsDto requestWithoutItemsDto;
-    private ItemInRequestDto itemInRequestDto;
 
     @Mock
     private UserRepository userRepository;
@@ -76,7 +74,7 @@ class ItemRequestServiceImplTest {
                 .email("user@email.ru")
                 .build();
 
-        owner = User.builder()
+        User owner = User.builder()
                 .id(OWNER_ID)
                 .name("ownerName")
                 .email("owner@email.ru")
@@ -112,7 +110,7 @@ class ItemRequestServiceImplTest {
                 .created(REQUEST_CREATED_2)
                 .build();
 
-        itemInRequestDto = ItemInRequestDto.builder()
+        ItemInRequestDto itemInRequestDto = ItemInRequestDto.builder()
                 .id(ITEM_ID)
                 .name("itemName")
                 .description("itemDescription")
@@ -167,9 +165,8 @@ class ItemRequestServiceImplTest {
         String expectedMessage = "User not found.";
         when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
 
-        Exception actual = assertThrows(ShareItElementNotFoundException.class, () -> {
-            itemRequestService.create(requestInputDto, USER_ID);
-        });
+        Exception actual = assertThrows(ShareItElementNotFoundException.class,
+                () -> itemRequestService.create(requestInputDto, USER_ID));
 
         assertEquals(expectedMessage, actual.getMessage());
         verify(userRepository, times(1)).findById(USER_ID);
@@ -200,9 +197,8 @@ class ItemRequestServiceImplTest {
         String expectedMessage = "User not found.";
         when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
 
-        Exception actual = assertThrows(ShareItElementNotFoundException.class, () -> {
-            itemRequestService.findAll(USER_ID);
-        });
+        Exception actual = assertThrows(ShareItElementNotFoundException.class,
+                () -> itemRequestService.findAll(USER_ID));
 
         assertEquals(expectedMessage, actual.getMessage());
         verify(userRepository, times(1)).findById(USER_ID);
@@ -243,9 +239,8 @@ class ItemRequestServiceImplTest {
         String expectedMessage = "User not found.";
         when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
 
-        Exception actual = assertThrows(ShareItElementNotFoundException.class, () -> {
-            itemRequestService.getById(USER_ID, REQUEST_ID_1);
-        });
+        Exception actual = assertThrows(ShareItElementNotFoundException.class,
+                () -> itemRequestService.getById(USER_ID, REQUEST_ID_1));
 
         assertEquals(expectedMessage, actual.getMessage());
         verify(userRepository, times(1)).findById(USER_ID);
@@ -259,9 +254,8 @@ class ItemRequestServiceImplTest {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
         when(requestRepository.findById(REQUEST_ID_1)).thenReturn(Optional.empty());
 
-        Exception actual = assertThrows(ShareItElementNotFoundException.class, () -> {
-            itemRequestService.getById(USER_ID, REQUEST_ID_1);
-        });
+        Exception actual = assertThrows(ShareItElementNotFoundException.class,
+                () -> itemRequestService.getById(USER_ID, REQUEST_ID_1));
 
         assertEquals(expectedMessage, actual.getMessage());
         verify(userRepository, times(1)).findById(USER_ID);

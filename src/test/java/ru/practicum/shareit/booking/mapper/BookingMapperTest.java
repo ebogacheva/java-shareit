@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking.model;
+package ru.practicum.shareit.booking.mapper;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -9,6 +9,9 @@ import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.dto.BookingFullDto;
 import ru.practicum.shareit.booking.dto.BookingInItemDto;
 import ru.practicum.shareit.booking.dto.BookingInputDto;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingMapper;
+import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
@@ -23,14 +26,13 @@ class BookingMapperTest {
     private static final LocalDateTime START = LocalDateTime.now().plusWeeks(1);
     private static final LocalDateTime END = LocalDateTime.now().plusWeeks(2);
     private static final Long BOOKER_ID = 1L;
-    private static Long ITEM_ID = 1L;
 
     private static Booking booking;
     private static BookingFullDto bookingFullDto;
     private static BookingInItemDto bookingInItemDto;
     private static BookingInputDto bookingInputDto;
     private static User booker;
-    private static Item item = new Item();
+    private static final Item item = new Item();
 
     @BeforeAll
     static void beforeAll() {
@@ -69,7 +71,7 @@ class BookingMapperTest {
                 .id(BOOKING_ID)
                 .start(START)
                 .end(END)
-                .itemId(ITEM_ID)
+                .itemId(1L)
                 .status(BookingStatus.WAITING)
                 .build();
     }

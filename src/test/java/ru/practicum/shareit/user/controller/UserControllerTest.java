@@ -1,4 +1,4 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,7 +11,9 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import ru.practicum.shareit.exception.ShareItElementNotFoundException;
+import ru.practicum.shareit.user.controller.UserController;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.service.UserServiceImpl;
 
 import javax.validation.ConstraintViolationException;
 
@@ -32,13 +34,13 @@ class UserControllerTest {
     private static final Long INVALID_USER_ID = -1L;
 
     @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @Autowired
-    ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
 
     @MockBean
-    UserServiceImpl userService;
+    private UserServiceImpl userService;
 
     private static UserDto userInputDto;
     private static UserDto userOutDto;

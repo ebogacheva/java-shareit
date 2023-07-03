@@ -10,7 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
@@ -27,16 +27,15 @@ class ItemRequestRepositoryTest {
     private static final Sort SORT = Sort.by("created").descending();
 
     @Autowired
-    ItemRepository itemRepository;
+    private ItemRepository itemRepository;
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    ItemRequestRepository requestRepository;
+    private ItemRequestRepository requestRepository;
 
     private User user1;
-    private User user2;
     private ItemRequest request1;
     private ItemRequest request2;
 
@@ -57,7 +56,7 @@ class ItemRequestRepositoryTest {
                 .email("booker@email.ru")
                 .build();
 
-        user2 = userRepository.save(user2Input);
+        User user2 = userRepository.save(user2Input);
 
         ItemRequest requestInput1 = ItemRequest.builder()
                 .id(null)

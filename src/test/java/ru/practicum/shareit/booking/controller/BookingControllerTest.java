@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking;
+package ru.practicum.shareit.booking.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import ru.practicum.shareit.booking.dto.BookingFullDto;
 import ru.practicum.shareit.booking.dto.BookingInputDto;
 import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
@@ -34,30 +35,23 @@ class BookingControllerTest {
     private static final LocalDateTime START = LocalDateTime.now().plusWeeks(1);
     private static final LocalDateTime END = LocalDateTime.now().plusWeeks(2);
     private static final Long BOOKING_ID_1 = 1L;
-    private static final Long BOOKING_ID_2 = 2L;
     private static final Long USER_ID = 1L;
     private static final Long OWNER_ID = 2L;
-    private static final Long OTHER_ID = 3L;
     private static final Long ITEM_ID = 1L;
     private static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
     private static final Long INVALID_BOOKING_ID = -10L;
 
     @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @Autowired
-    ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
 
     @MockBean
-    BookingService bookingService;
+    private BookingService bookingService;
 
     private BookingInputDto bookingInputDto;
-    private User user;
-    private User owner;
-    private User other;
-    private Item item;
     private BookingFullDto bookingFullDto1;
-    private BookingFullDto bookingFullDto2;
 
     @BeforeEach
     void beforeEach() {
@@ -69,25 +63,19 @@ class BookingControllerTest {
                 .status(null)
                 .build();
 
-        user = User.builder()
+        User user = User.builder()
                 .id(USER_ID)
                 .name("userName")
                 .email("user@email.ru")
                 .build();
 
-        other = User.builder()
-                .id(OTHER_ID)
-                .name("otherName")
-                .email("otherName@email.ru")
-                .build();
-
-        owner = User.builder()
+        User owner = User.builder()
                 .id(OWNER_ID)
                 .name("ownerName")
                 .email("owner@email.ru")
                 .build();
 
-        item = Item.builder()
+        Item item = Item.builder()
                 .id(ITEM_ID)
                 .name("itemName")
                 .description("itemDescription")
@@ -98,16 +86,6 @@ class BookingControllerTest {
 
         bookingFullDto1 = BookingFullDto.builder()
                 .id(BOOKING_ID_1)
-                .start(START)
-                .end(END)
-                .item(item)
-                .booker(user)
-                .status(BookingStatus.WAITING)
-                .build();
-
-
-        bookingFullDto2 = BookingFullDto.builder()
-                .id(BOOKING_ID_2)
                 .start(START)
                 .end(END)
                 .item(item)

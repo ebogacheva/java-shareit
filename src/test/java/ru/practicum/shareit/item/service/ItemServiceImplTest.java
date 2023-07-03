@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
-import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingInItemDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
@@ -21,14 +21,13 @@ import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
-import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.hamcrest.Matchers.samePropertyValuesAs;
 import static org.junit.jupiter.api.Assertions.*;
 
 import static org.hamcrest.Matchers.*;
@@ -72,8 +71,6 @@ class ItemServiceImplTest {
     private CommentFullDto commentFullDto;
     private CommentInputDto commentInputDto;
     private Comment comment;
-    private BookingInItemDto lastBooking;
-    private BookingInItemDto nextBooking;
     private Booking last;
     private Booking next;
 
@@ -147,7 +144,7 @@ class ItemServiceImplTest {
                 .booker(user)
                 .build();
 
-        lastBooking = BookingInItemDto.builder()
+        BookingInItemDto lastBooking = BookingInItemDto.builder()
                 .id(LAST_BOOKING_ID)
                 .start(LAST_BOOKING_START)
                 .end(LAST_BOOKING_END)
@@ -161,7 +158,7 @@ class ItemServiceImplTest {
                 .booker(user)
                 .build();
 
-        nextBooking = BookingInItemDto.builder()
+        BookingInItemDto nextBooking = BookingInItemDto.builder()
                 .id(NEXT_BOOKING_ID)
                 .start(NEXT_BOOKING_START)
                 .end(NEXT_BOOKING_END)

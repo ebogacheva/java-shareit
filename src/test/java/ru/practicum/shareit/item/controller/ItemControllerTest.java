@@ -42,13 +42,13 @@ class ItemControllerTest {
     private static CommentInputDto commentInputDto;
 
     @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @Autowired
-    ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
 
     @MockBean
-    ItemService itemService;
+    private ItemService itemService;
 
     @BeforeEach
     void beforeEach() {

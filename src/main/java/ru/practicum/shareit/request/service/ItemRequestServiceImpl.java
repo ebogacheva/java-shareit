@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.ShareItElementNotFoundException;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
@@ -13,9 +14,9 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.request.dto.ItemRequestInputDto;
 import ru.practicum.shareit.request.dto.RequestWithItemsDto;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.request.model.ItemRequestMapper;
+import ru.practicum.shareit.request.mapper.ItemRequestMapper;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
-import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
@@ -33,6 +34,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRequestRepository requestRepository;
     private final ItemRepository itemRepository;
 
+    @Transactional
     @Override
     public RequestWithItemsDto create(ItemRequestInputDto itemRequestInputDto, Long userId) {
         User user = getUserIfExists(userId);
@@ -87,6 +89,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     private static Pageable pageRequestOf(int from, int size, Sort sort) {
         int page = from / size;
-        return PageRequest.of(page, size, SORT);
+        return PageRequest.of(page, size, sort);
     }
 }

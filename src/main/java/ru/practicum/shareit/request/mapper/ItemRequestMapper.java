@@ -1,8 +1,9 @@
-package ru.practicum.shareit.request.model;
+package ru.practicum.shareit.request.mapper;
 
 import org.springframework.data.domain.Page;
 import ru.practicum.shareit.request.dto.ItemRequestInputDto;
 import ru.practicum.shareit.request.dto.RequestWithItemsDto;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;

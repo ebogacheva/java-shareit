@@ -8,7 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.booking.BookingService;
+import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.booking.dto.BookingFullDto;
 import ru.practicum.shareit.booking.dto.BookingInItemDto;
 import ru.practicum.shareit.booking.dto.BookingInputDto;
@@ -19,7 +19,7 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.user.UserServiceImpl;
+import ru.practicum.shareit.user.service.UserServiceImpl;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.time.LocalDateTime;
@@ -108,12 +108,9 @@ class ItemServiceRepositoryIntegrationTest {
 
         // then item is saved in db
         Optional<Item> actualItem = itemRepository.findById(itemId);
-        ItemOutDto actualDto = null;
-        if (actualItem.isPresent()) {
-            actualDto = ItemMapper.toItemOutDto(actualItem.get());
-        }
+        assertTrue(actualItem.isPresent());
 
-        assertNotNull(actualDto);
+        ItemOutDto actualDto = ItemMapper.toItemOutDto(actualItem.get());
         assertEquals(expectedDto, actualDto);
     }
 
@@ -180,16 +177,14 @@ class ItemServiceRepositoryIntegrationTest {
 
         // then save updated object
         ItemOutDto updatedFromService = itemService.update(itemInputDto, userId, itemId);
-        Optional<Item> itemFromRepo = itemRepository.findById(itemId);
-        ItemOutDto itemOutDto = null;
-        if (itemFromRepo.isPresent()) {
-            itemOutDto = ItemMapper.toItemOutDto(itemFromRepo.get());
-        }
 
+        // assert result
+        Optional<Item> itemFromRepo = itemRepository.findById(itemId);
+        assertTrue(itemFromRepo.isPresent());
+        ItemOutDto itemOutDto = ItemMapper.toItemOutDto(itemFromRepo.get());
         assertNotEquals(savedFromDb, updatedFromService);
         assertNotNull(itemOutDto);
     }
-
 
     @Test
     void search() {
@@ -218,12 +213,10 @@ class ItemServiceRepositoryIntegrationTest {
         // add comment
         CommentFullDto commentFullDto = itemService.addComment(commentInputDto, itemId, bookerId);
 
-        CommentFullDto commentFullDtoFromDb = null;
+        // assert results
         Optional<Comment> commentOptionalFromDb = commentRepository.findById(commentFullDto.getId());
-        if (commentOptionalFromDb.isPresent()) {
-            commentFullDtoFromDb = CommentMapper.toCommentFullDto(commentOptionalFromDb.get());
-        }
-        assertNotNull(commentFullDtoFromDb);
+        assertTrue(commentOptionalFromDb.isPresent());
+        CommentFullDto commentFullDtoFromDb = CommentMapper.toCommentFullDto(commentOptionalFromDb.get());
         assertEquals(commentFullDto, commentFullDtoFromDb);
     }
 

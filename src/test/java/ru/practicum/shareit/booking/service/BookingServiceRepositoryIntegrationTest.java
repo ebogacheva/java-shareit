@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking;
+package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,13 +12,15 @@ import ru.practicum.shareit.booking.dto.BookingFullDto;
 import ru.practicum.shareit.booking.dto.BookingInputDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingMapper;
+import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.booking.service.BookingServiceImpl;
 import ru.practicum.shareit.exception.BookingIsAlreadyApprovedException;
 import ru.practicum.shareit.exception.ItemIsUnavailableException;
 import ru.practicum.shareit.exception.ShareItElementNotFoundException;
 import ru.practicum.shareit.item.dto.ItemInputDto;
 import ru.practicum.shareit.item.dto.ItemOutDto;
 import ru.practicum.shareit.item.service.ItemServiceImpl;
-import ru.practicum.shareit.user.UserServiceImpl;
+import ru.practicum.shareit.user.service.UserServiceImpl;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.time.LocalDateTime;
@@ -102,12 +104,9 @@ class BookingServiceRepositoryIntegrationTest {
 
         // then booking is saved in db
         Optional<Booking> actualBooking = bookingRepository.findById(bookingId);
-        BookingFullDto actualDto = null;
-        if (actualBooking.isPresent()) {
-            actualDto = BookingMapper.toBookingFullDto(actualBooking.get());
-        }
+        assertTrue(actualBooking.isPresent());
 
-        assertNotNull(actualDto);
+        BookingFullDto actualDto = BookingMapper.toBookingFullDto(actualBooking.get());
         assertEquals(expectedDto, actualDto);
     }
 
@@ -142,12 +141,9 @@ class BookingServiceRepositoryIntegrationTest {
         BookingFullDto expectedDto = bookingService.create(bookingInputDto, bookerId);
         bookingId = expectedDto.getId();
         Optional<Booking> actualBooking = bookingRepository.findById(bookingId);
-        BookingFullDto actualDto = null;
-        if (actualBooking.isPresent()) {
-            actualDto = BookingMapper.toBookingFullDto(actualBooking.get());
-        }
+        assertTrue(actualBooking.isPresent());
 
-        assertNotNull(actualDto);
+        BookingFullDto actualDto = BookingMapper.toBookingFullDto(actualBooking.get());
         assertEquals(expectedDto, actualDto);
     }
 
@@ -159,12 +155,7 @@ class BookingServiceRepositoryIntegrationTest {
         Optional<Booking> actualBooking = bookingRepository.findById(bookingId);
 
         //then optional is empty
-        BookingFullDto actualDto = null;
-        if (actualBooking.isPresent()) {
-            actualDto = BookingMapper.toBookingFullDto(actualBooking.get());
-        }
-
-        assertNull(actualDto);
+        assertTrue(actualBooking.isEmpty());
     }
 
     @Test

@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 @Table(name = "requests")
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 public class ItemRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking;
+package ru.practicum.shareit.booking.repository;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,9 +10,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
@@ -38,13 +39,13 @@ class BookingRepositoryTest {
     private User booker;
 
     @Autowired
-    BookingRepository bookingRepository;
+    private BookingRepository bookingRepository;
 
     @Autowired
-    ItemRepository itemRepository;
+    private ItemRepository itemRepository;
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @BeforeEach
     public void beforeEach() {
@@ -112,23 +113,6 @@ class BookingRepositoryTest {
         bookingRepository.deleteAll();
         itemRepository.deleteAll();
         userRepository.deleteAll();
-    }
-
-    private void makeBookingCurrent(Booking booking) {
-        booking.setStart(LocalDateTime.now().minusDays(5));
-        booking.setEnd(LocalDateTime.now().plusDays(5));
-        bookingRepository.save(booking);
-    }
-
-    private void makeBookingPast(Booking booking) {
-        booking.setStart(LocalDateTime.now().minusDays(10));
-        booking.setEnd(LocalDateTime.now().minusDays(5));
-        bookingRepository.save(booking);
-    }
-
-    private void changeBookingStatus(Booking booking, BookingStatus status) {
-        booking.setStatus(status);
-        bookingRepository.save(booking);
     }
 
     @Test
@@ -309,4 +293,23 @@ class BookingRepositoryTest {
         assertTrue(expected.containsAll(actual));
         assertTrue(actual.containsAll(expected));
     }
+
+
+    private void makeBookingCurrent(Booking booking) {
+        booking.setStart(LocalDateTime.now().minusDays(5));
+        booking.setEnd(LocalDateTime.now().plusDays(5));
+        bookingRepository.save(booking);
+    }
+
+    private void makeBookingPast(Booking booking) {
+        booking.setStart(LocalDateTime.now().minusDays(10));
+        booking.setEnd(LocalDateTime.now().minusDays(5));
+        bookingRepository.save(booking);
+    }
+
+    private void changeBookingStatus(Booking booking, BookingStatus status) {
+        booking.setStatus(status);
+        bookingRepository.save(booking);
+    }
+
 }

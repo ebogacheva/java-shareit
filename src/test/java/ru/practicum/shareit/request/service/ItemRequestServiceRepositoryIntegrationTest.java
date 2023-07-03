@@ -14,7 +14,7 @@ import ru.practicum.shareit.request.dto.ItemRequestInputDto;
 import ru.practicum.shareit.request.dto.RequestWithItemsDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
-import ru.practicum.shareit.user.UserServiceImpl;
+import ru.practicum.shareit.user.service.UserServiceImpl;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
@@ -88,12 +88,10 @@ class ItemRequestServiceRepositoryIntegrationTest {
 
         // then get request by id from repo
         Optional<ItemRequest> requestOptionalFromDb = requestRepository.findById(requestId);
-        ItemRequest itemRequestFromDb = null;
-        if (requestOptionalFromDb.isPresent()) {
-            itemRequestFromDb = requestOptionalFromDb.get();
-        }
 
-        assertNotNull(itemRequestFromDb);
+        // assert result
+        assertTrue(requestOptionalFromDb.isPresent());
+        ItemRequest itemRequestFromDb = requestOptionalFromDb.get();
         assertEquals(itemRequestInputDto.getDescription(), itemRequestFromDb.getDescription());
 
         // when get request from service - with items
@@ -125,12 +123,8 @@ class ItemRequestServiceRepositoryIntegrationTest {
 
         // then get request by id from repo
         Optional<ItemRequest> requestOptionalFromDb = requestRepository.findById(requestId);
-        ItemRequest itemRequestFromDb = null;
-        if (requestOptionalFromDb.isPresent()) {
-            itemRequestFromDb = requestOptionalFromDb.get();
-        }
-
-        assertNotNull(itemRequestFromDb);
+        assertTrue(requestOptionalFromDb.isPresent());
+        ItemRequest itemRequestFromDb = requestOptionalFromDb.get();
         assertEquals(itemRequestInputDto.getDescription(), itemRequestFromDb.getDescription());
     }
 

@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking;
+package ru.practicum.shareit.booking.service;
 
 import org.apache.logging.log4j.util.Strings;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,13 +17,15 @@ import ru.practicum.shareit.booking.dto.BookingInputDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingMapper;
 import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.booking.service.BookingServiceImpl;
 import ru.practicum.shareit.exception.BookingIsAlreadyApprovedException;
 import ru.practicum.shareit.exception.ItemIsUnavailableException;
 import ru.practicum.shareit.exception.ShareItElementNotFoundException;
 import ru.practicum.shareit.exception.UnsupportedStatusException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
@@ -33,7 +35,6 @@ import java.util.function.BiFunction;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.verify;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -66,7 +67,7 @@ class BookingServiceImplTest {
     @Mock
     private ItemRepository itemRepository;
     @Spy
-    private Map<BookingServiceImpl.SearchCondition, BiFunction<Long, Pageable, Page<Booking>>> conditions = new HashMap<>();
+    private final Map<BookingServiceImpl.SearchCondition, BiFunction<Long, Pageable, Page<Booking>>> conditions = new HashMap<>();
 
     @InjectMocks
     private BookingServiceImpl bookingService;
@@ -74,10 +75,8 @@ class BookingServiceImplTest {
     private BookingInputDto bookingInputDto;
     private User user;
     private User owner;
-    private User other;
     private Item item;
     private Booking booking1;
-    private Booking booking2;
     private BookingFullDto bookingFullDto1;
     private BookingFullDto bookingFullDto2;
 
@@ -101,7 +100,7 @@ class BookingServiceImplTest {
                 .email("user@email.ru")
                 .build();
 
-        other = User.builder()
+        User other = User.builder()
                 .id(OTHER_ID)
                 .name("otherName")
                 .email("otherName@email.ru")
@@ -131,7 +130,7 @@ class BookingServiceImplTest {
                 .status(BookingStatus.WAITING)
                 .build();
 
-        booking2 = Booking.builder()
+        Booking booking2 = Booking.builder()
                 .id(BOOKING_ID_2)
                 .start(START)
                 .end(END)
@@ -205,9 +204,7 @@ class BookingServiceImplTest {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
         when(itemRepository.findById(bookingInputDto.getItemId())).thenReturn(Optional.of(item));
 
-        assertThrows(ItemIsUnavailableException.class, () -> {
-            bookingService.create(bookingInputDto, USER_ID);
-        });
+        assertThrows(ItemIsUnavailableException.class, () -> bookingService.create(bookingInputDto, USER_ID));
 
         verify(userRepository, times(1)).findById(USER_ID);
         verify(bookingRepository, never()).save(any(Booking.class));

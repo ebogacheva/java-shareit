@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking;
+package ru.practicum.shareit.booking.service;
 
 import lombok.AllArgsConstructor;
 import org.apache.logging.log4j.util.Strings;
@@ -12,30 +12,31 @@ import ru.practicum.shareit.booking.dto.BookingInputDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingMapper;
 import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.BookingIsAlreadyApprovedException;
 import ru.practicum.shareit.exception.ItemIsUnavailableException;
 import ru.practicum.shareit.exception.ShareItElementNotFoundException;
 import ru.practicum.shareit.exception.UnsupportedStatusException;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.*;
 import java.util.function.BiFunction;
 
-import static ru.practicum.shareit.booking.BookingServiceImpl.SearchCondition.ALL_FOR_BOOKER;
-import static ru.practicum.shareit.booking.BookingServiceImpl.SearchCondition.ALL_FOR_OWNER;
-import static ru.practicum.shareit.booking.BookingServiceImpl.SearchCondition.CURRENT_FOR_BOOKER;
-import static ru.practicum.shareit.booking.BookingServiceImpl.SearchCondition.CURRENT_FOR_OWNER;
-import static ru.practicum.shareit.booking.BookingServiceImpl.SearchCondition.PAST_FOR_BOOKER;
-import static ru.practicum.shareit.booking.BookingServiceImpl.SearchCondition.PAST_FOR_OWNER;
-import static ru.practicum.shareit.booking.BookingServiceImpl.SearchCondition.FUTURE_FOR_BOOKER;
-import static ru.practicum.shareit.booking.BookingServiceImpl.SearchCondition.FUTURE_FOR_OWNER;
-import static ru.practicum.shareit.booking.BookingServiceImpl.SearchCondition.REJECTED_FOR_BOOKER;
-import static ru.practicum.shareit.booking.BookingServiceImpl.SearchCondition.WAITING_FOR_OWNER;
-import static ru.practicum.shareit.booking.BookingServiceImpl.SearchCondition.REJECTED_FOR_OWNER;
-import static ru.practicum.shareit.booking.BookingServiceImpl.SearchCondition.WAITING_FOR_BOOKER;
+import static ru.practicum.shareit.booking.service.BookingServiceImpl.SearchCondition.ALL_FOR_BOOKER;
+import static ru.practicum.shareit.booking.service.BookingServiceImpl.SearchCondition.ALL_FOR_OWNER;
+import static ru.practicum.shareit.booking.service.BookingServiceImpl.SearchCondition.CURRENT_FOR_BOOKER;
+import static ru.practicum.shareit.booking.service.BookingServiceImpl.SearchCondition.CURRENT_FOR_OWNER;
+import static ru.practicum.shareit.booking.service.BookingServiceImpl.SearchCondition.PAST_FOR_BOOKER;
+import static ru.practicum.shareit.booking.service.BookingServiceImpl.SearchCondition.PAST_FOR_OWNER;
+import static ru.practicum.shareit.booking.service.BookingServiceImpl.SearchCondition.FUTURE_FOR_BOOKER;
+import static ru.practicum.shareit.booking.service.BookingServiceImpl.SearchCondition.FUTURE_FOR_OWNER;
+import static ru.practicum.shareit.booking.service.BookingServiceImpl.SearchCondition.REJECTED_FOR_BOOKER;
+import static ru.practicum.shareit.booking.service.BookingServiceImpl.SearchCondition.WAITING_FOR_OWNER;
+import static ru.practicum.shareit.booking.service.BookingServiceImpl.SearchCondition.REJECTED_FOR_OWNER;
+import static ru.practicum.shareit.booking.service.BookingServiceImpl.SearchCondition.WAITING_FOR_BOOKER;
 
 @Service
 @AllArgsConstructor

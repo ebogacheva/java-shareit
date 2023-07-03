@@ -60,8 +60,7 @@ public class ItemMapper {
     }
 
     public static List<ItemOutDto> toItemDtoList(Page<Item> pageOfItems) {
-        List<Item> items = pageOfItems.getContent();
-        return items.stream().map(ItemMapper::toItemOutDto).collect(Collectors.toList());
+        return pageOfItems.getContent().stream().map(ItemMapper::toItemOutDto).collect(Collectors.toList());
     }
 
     public static ItemInRequestDto toItemResponseInRequest(Item item) {

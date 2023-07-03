@@ -6,10 +6,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.practicum.shareit.booking.BookingController;
+import ru.practicum.shareit.booking.controller.BookingController;
 import ru.practicum.shareit.item.controller.ItemController;
-import ru.practicum.shareit.request.ItemRequestController;
-import ru.practicum.shareit.user.UserController;
+import ru.practicum.shareit.request.controller.ItemRequestController;
+import ru.practicum.shareit.user.controller.UserController;
 
 import javax.validation.ConstraintViolationException;
 import java.util.Map;
