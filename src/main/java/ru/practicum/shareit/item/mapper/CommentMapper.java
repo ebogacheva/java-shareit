@@ -1,7 +1,7 @@
 package ru.practicum.shareit.item.mapper;
 
-import ru.practicum.shareit.item.dto.CommentPostRequestDto;
-import ru.practicum.shareit.item.dto.CommentResponseDto;
+import ru.practicum.shareit.item.dto.CommentInputDto;
+import ru.practicum.shareit.item.dto.CommentFullDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 public class CommentMapper {
 
-    public static Comment toComment(CommentPostRequestDto commentDto, Item item, User user) {
+    public static Comment toComment(CommentInputDto commentDto, Item item, User user) {
         return Comment.builder()
                 .text(commentDto.getText())
                 .item(item)
@@ -18,8 +18,8 @@ public class CommentMapper {
                 .build();
     }
 
-    public static CommentResponseDto toCommentResponseDto(Comment comment) {
-        return CommentResponseDto.builder()
+    public static CommentFullDto toCommentFullDto(Comment comment) {
+        return CommentFullDto.builder()
                 .id(comment.getId())
                 .text(comment.getText())
                 .itemId(comment.getItem().getId())
@@ -28,7 +28,7 @@ public class CommentMapper {
                 .build();
     }
 
-    public static List<CommentResponseDto> toCommentDtoList(List<Comment> comments) {
-        return comments.stream().map(CommentMapper::toCommentResponseDto).collect(Collectors.toList());
+    public static List<CommentFullDto> toCommentDtoList(List<Comment> comments) {
+        return comments.stream().map(CommentMapper::toCommentFullDto).collect(Collectors.toList());
     }
 }

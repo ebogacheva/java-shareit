@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @BookingStartEndValidation
+@EqualsAndHashCode
 public class BookingBaseDto {
     private Long id;
     private LocalDateTime start;
