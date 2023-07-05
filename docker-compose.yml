@@ -11,6 +11,7 @@ services:
     environment:
       - SHAREIT_SERVER_URL=http://server:9090
 
+
   server:
     build: server
     image: server_image
