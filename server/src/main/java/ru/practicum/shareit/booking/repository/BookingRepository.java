@@ -68,11 +68,26 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query(ALL_BY_OWNER + GET_REJECTED + ORDER_BY_DATE)
     Page<Booking> findUserItemsBookingsRejected(Long userId, Pageable pageable);
 
-    Optional<Booking> findFirst1BookingByItemIdAndStatusAndStartBefore(Long itemId, BookingStatus status, LocalDateTime now, Sort sort);
+    Optional<Booking> findFirst1BookingByItemIdAndStatusAndStartBefore(
+            Long itemId,
+            BookingStatus status,
+            LocalDateTime now,
+            Sort sort
+    );
 
-    Optional<Booking> findFirst1BookingByItemIdAndStatusAndStartAfter(Long itemId, BookingStatus status, LocalDateTime now, Sort sort);
+    Optional<Booking> findFirst1BookingByItemIdAndStatusAndStartAfter(
+            Long itemId,
+            BookingStatus status,
+            LocalDateTime now,
+            Sort sort
+    );
 
-    Optional<Booking> findFirst1BookingByBookerIdAndItemIdAndStatusAndStartBefore(Long bookerId, Long itemId, BookingStatus status, LocalDateTime now);
+    Optional<Booking> findFirst1BookingByBookerIdAndItemIdAndStatusAndStartBefore(
+            Long bookerId,
+            Long itemId,
+            BookingStatus status,
+            LocalDateTime now
+    );
 
 }
 

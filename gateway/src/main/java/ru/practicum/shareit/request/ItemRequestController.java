@@ -28,7 +28,7 @@ public class ItemRequestController {
 
     @PostMapping
     public ResponseEntity<Object> create(@RequestHeader(X_SHARER_USER_ID) long userId,
-                                 @Valid @RequestBody ItemRequestInputDto itemRequestInputDto) {
+                                         @Valid @RequestBody ItemRequestInputDto itemRequestInputDto) {
         return itemRequestClient.create(itemRequestInputDto, userId);
     }
 
@@ -39,14 +39,14 @@ public class ItemRequestController {
 
     @GetMapping(value = "/all")
     public ResponseEntity<Object> findAll(@RequestHeader(X_SHARER_USER_ID) long userId,
-                                             @Min(0) @RequestParam(required = false, defaultValue = "0") int from,
-                                             @Min(1) @RequestParam(required = false, defaultValue = "10") int size) {
+                                          @Min(0) @RequestParam(required = false, defaultValue = "0") int from,
+                                          @Min(1) @RequestParam(required = false, defaultValue = "10") int size) {
         return itemRequestClient.findAll(userId, from, size);
     }
 
     @GetMapping(value = "/{requestId}")
     public ResponseEntity<Object> getById(@RequestHeader(X_SHARER_USER_ID) long userId,
-                                       @PathVariable Long requestId) {
+                                          @PathVariable Long requestId) {
         return itemRequestClient.getById(userId, requestId);
     }
 

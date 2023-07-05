@@ -12,7 +12,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.dto.BookingFullDto;
 import ru.practicum.shareit.booking.dto.BookingInputDto;
 import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.booking.service.BookingServiceImpl;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;

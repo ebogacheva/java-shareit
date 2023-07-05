@@ -8,13 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import ru.practicum.shareit.exception.ShareItElementNotFoundException;
 import ru.practicum.shareit.item.dto.ItemInRequestDto;
 import ru.practicum.shareit.request.controller.ItemRequestController;
 import ru.practicum.shareit.request.dto.ItemRequestInputDto;
 import ru.practicum.shareit.request.dto.RequestWithItemsDto;
-import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.request.service.ItemRequestServiceImpl;
 
 import java.time.LocalDateTime;

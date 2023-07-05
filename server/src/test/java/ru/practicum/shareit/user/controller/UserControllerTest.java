@@ -9,9 +9,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import ru.practicum.shareit.exception.ShareItElementNotFoundException;
-import ru.practicum.shareit.user.controller.UserController;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserServiceImpl;
 
@@ -32,7 +30,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UserControllerTest {
 
     private static final Long USER_ID = 1L;
-    private static final Long INVALID_USER_ID = -1L;
 
     @Autowired
     private MockMvc mockMvc;

@@ -17,9 +17,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Getter
 @Setter
 @Entity(name = "items")

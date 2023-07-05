@@ -9,9 +9,6 @@ import lombok.Setter;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-/**
- * TODO Sprint add-item-requests.
- */
 @Getter
 @Setter
 @AllArgsConstructor

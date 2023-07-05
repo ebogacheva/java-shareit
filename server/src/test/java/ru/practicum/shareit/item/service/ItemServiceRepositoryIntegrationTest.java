@@ -5,8 +5,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingFullDto;
 import ru.practicum.shareit.booking.dto.BookingInItemDto;
@@ -23,7 +21,6 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.item.service.ItemServiceImpl;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserServiceImpl;
 
@@ -49,9 +46,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class ItemServiceRepositoryIntegrationTest {
 
-    private static final int PAGE_SIZE_20 = 20;
-    private static final int PAGE_INDEX = 0;
-    private static final Pageable PAGEABLE_20 = PageRequest.of(PAGE_INDEX, PAGE_SIZE_20);
     private static final LocalDateTime START = LocalDateTime.now().minusWeeks(2);
     private static final LocalDateTime END = LocalDateTime.now().minusWeeks(1);
 
@@ -133,7 +127,6 @@ class ItemServiceRepositoryIntegrationTest {
         Long itemId = savedItemDto.getId();
 
         // then item get by id
-        ItemFullDto itemFullDtoFromService = itemService.getById(userId, itemId);
         Optional<Item> itemOptionalFromRepo = itemRepository.findById(itemId);
         ItemFullDto itemFullDtoFromRepo = null;
         if (itemOptionalFromRepo.isPresent()) {
@@ -169,8 +162,8 @@ class ItemServiceRepositoryIntegrationTest {
     @Test
     void findAll() {
         // saving valid input - creating item
-        ItemOutDto savedItemDto1 = itemService.create(itemInputDto, userId);
-        ItemOutDto savedItemDto2 = itemService.create(itemInputDto, userId);
+        itemService.create(itemInputDto, userId);
+        itemService.create(itemInputDto, userId);
 
         List<ItemFullDto> listOfItemDtoFromService = itemService.findAll(userId, 0, 20);
         assertThat(listOfItemDtoFromService.size(), is(2));
@@ -203,7 +196,6 @@ class ItemServiceRepositoryIntegrationTest {
         // saving valid input - creating item
         itemInputDto.setDescription("for searching");
         ItemOutDto savedFromDb = itemService.create(itemInputDto, userId);
-        Long itemId = savedFromDb.getId();
 
         List<ItemOutDto> actual = itemService.search("search", 0, 20);
         List<ItemOutDto> expected = List.of(savedFromDb);

@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking.service;
 
-import org.apache.logging.log4j.util.Strings;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,7 +19,6 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingMapper;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.booking.service.BookingServiceImpl;
 import ru.practicum.shareit.exception.BookingIsAlreadyApprovedException;
 import ru.practicum.shareit.exception.ItemIsUnavailableException;
 import ru.practicum.shareit.exception.ShareItElementNotFoundException;

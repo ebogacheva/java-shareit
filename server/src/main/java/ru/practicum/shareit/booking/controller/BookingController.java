@@ -16,9 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/**
- * TODO Sprint add-bookings.
- */
 @RestController
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
@@ -59,9 +56,9 @@ public class BookingController {
 
     @GetMapping(value = "/owner")
     public List<BookingFullDto> findBookingsForOwner(@RequestHeader(X_SHARER_USER_ID) long userId,
-                                              @RequestParam(name = "state", required = false)  String searchCondition,
-                                              @RequestParam(required = false, defaultValue = "0") int from,
-                                              @RequestParam(required = false, defaultValue = "10") int size) {
+                                                     @RequestParam(name = "state", required = false)  String searchCondition,
+                                                     @RequestParam(required = false, defaultValue = "0") int from,
+                                                     @RequestParam(required = false, defaultValue = "10") int size) {
         return bookingService.findBookings(userId, searchCondition, OWNER, from, size);
     }
 

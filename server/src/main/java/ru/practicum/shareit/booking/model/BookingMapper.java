@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class BookingMapper {
+
     public static BookingFullDto toBookingFullDto(Booking booking) {
         return BookingFullDto.builder()
                 .id(booking.getId())

@@ -16,7 +16,6 @@ import ru.practicum.shareit.user.dto.UserDto;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 @RestController
 @RequestMapping(path = "/users")
@@ -45,7 +44,7 @@ public class UserController {
 
     @PatchMapping(value = "/{userId}")
     public ResponseEntity<Object> update(@NotNull @Min(MIN_ID_VALUE) @PathVariable Long userId,
-                          @RequestBody UserDto userDto) {
+                                         @RequestBody UserDto userDto) {
         return userClient.update(userDto, userId);
     }
 

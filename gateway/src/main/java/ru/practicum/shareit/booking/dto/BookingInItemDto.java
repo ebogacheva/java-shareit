@@ -9,9 +9,9 @@ import lombok.experimental.SuperBuilder;
 
 @Setter
 @Getter
-@SuperBuilder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
+@SuperBuilder(toBuilder = true)
 @EqualsAndHashCode(callSuper = true)
 public class BookingInItemDto extends BookingBaseDto {
     private Long bookerId;

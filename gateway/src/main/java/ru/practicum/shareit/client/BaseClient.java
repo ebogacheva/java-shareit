@@ -13,6 +13,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 public class BaseClient {
+
     protected final RestTemplate rest;
 
     public BaseClient(RestTemplate rest) {
@@ -62,6 +63,7 @@ public class BaseClient {
     protected <T> ResponseEntity<Object> patch(String path, long userId, T body) {
         return patch(path, userId, null, body);
     }
+
     protected <T> ResponseEntity<Object> patch(String path, long userId, Map<String, Object> parameters) {
         return patch(path, userId, parameters, null);
     }

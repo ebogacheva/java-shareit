@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import ru.practicum.shareit.booking.dto.BookingInItemDto;
 import ru.practicum.shareit.exception.AccessForbiddenException;
 import ru.practicum.shareit.exception.ShareItElementNotFoundException;
@@ -18,7 +17,6 @@ import ru.practicum.shareit.item.dto.CommentInputDto;
 import ru.practicum.shareit.item.dto.ItemFullDto;
 import ru.practicum.shareit.item.dto.ItemInputDto;
 import ru.practicum.shareit.item.dto.ItemOutDto;
-import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.item.service.ItemServiceImpl;
 
 import java.util.List;
