@@ -11,16 +11,13 @@ import javax.validation.ConstraintViolationException;
 @RestControllerAdvice
 public class ErrorHandler {
 
-    @ExceptionHandler
+    @ExceptionHandler({ConstraintViolationException.class, MethodArgumentNotValidException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handle(final ConstraintViolationException e) {
-        return new ErrorResponse("Validation error: ", e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handle(final MethodArgumentNotValidException e) {
-        return new ErrorResponse("Validation error: ", e.getMessage());
+    public ErrorResponse handleValidationException(Exception e) throws Exception {
+        if (e instanceof ConstraintViolationException || e instanceof  MethodArgumentNotValidException) {
+            return new ErrorResponse("Validation error: ", e.getMessage());
+        }
+        throw e;
     }
 
     @ExceptionHandler
